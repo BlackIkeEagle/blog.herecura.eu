@@ -1,0 +1,13 @@
+/* About section */
+.sidebar-about h1 {
+  color: #fff;
+  margin-top: 0;
+  font-family: "Abril Fatface", serif;
+  font-size: 2rem;
+}
+
+.post-title .type {
+  color: #b0b0b0;
+  background-color: #202020;
+  padding: 0rem 0.5rem;
+}

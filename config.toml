@@ -1,3 +1,33 @@
-baseURL = "http://example.org/"
+baseURL = "https://blog.herecura.eu/"
 languageCode = "en-us"
-title = "My New Hugo Site"
+title = "BlackIkeEagle's blog"
+theme = "hyde"
+[params]
+  description = "Thoughts to remember, and other random stuff."
+  copyright = "2014"
+  layoutReverse = true
+  disqusShortname = "blackikeeaglesblog"
+[[menu.main]]
+    name = "About"
+    weight = -110
+    identifier = "about"
+    url = "/page/about/"
+[[menu.main]]
+    name = "Talks"
+    weight = -100
+    url = "/talk/"
+[[menu.blogroll]]
+    name = "Docker West"
+    weight = -120
+    identifier = "dockerwest"
+    url = "https://dockerwest.github.io"
+[[menu.blogroll]]
+    name = "Jachim Coudenys"
+    weight = -110
+    identifier = "coudenysj"
+    url = "https://blog.jachim.be"
+[[menu.blogroll]]
+    name = "Tom Van Herrewege"
+    weight = -110
+    identifier = "Miljar"
+    url = "https://miljar.github.io"

@@ -1,0 +1,26 @@
+<div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="{{ .Site.BaseURL }}"><h1>{{ .Site.Title }}</h1></a>
+      <p class="lead">
+      {{ .Site.Params.description }}
+      </p>
+    </div>
+
+    <ul class="sidebar-nav">
+      <li><a href="{{ .Site.BaseURL }}">Home</a> </li>
+      {{ range .Site.Menus.main }}
+        <li><a href="{{.URL}}"> {{ .Name }} </a></li>
+      {{end}}
+    </ul>
+
+    <h2>Blogroll</h2>
+    <ul class="sidebar-nav">
+      {{ range .Site.Menus.blogroll }}
+        <li><a href="{{.URL}}"> {{ .Name }} </a></li>
+      {{end}}
+    </ul>
+
+    <p>&copy; {{ with .Site.Params.copyright }}{{.}}{{ else }}{{ now.Format "2006"}}{{end}}. All rights reserved.</p>
+  </div>
+</div>
