@@ -13,6 +13,11 @@ theme = "hyde"
     identifier = "about"
     url = "/page/about/"
 [[menu.main]]
+    name = "Blogs"
+    weight = -105
+    identifier = "blogs"
+    url = "/blog/"
+[[menu.main]]
     name = "Talks"
     weight = -100
     url = "/talk/"
