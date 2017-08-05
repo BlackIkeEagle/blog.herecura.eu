@@ -5,8 +5,22 @@
   <div class="content container">
     <div class="post">
       <h1>{{ .Title }}</h1>
+      <span class="post-date">{{ .Date.Format "Mon, Jan 2, 2006" }}</span>
+      {{ with .Params.meetuplogo }}
+      <img alt="meetup logo" src="{{ . }}" />
+      {{ end }}
       {{ .Content }}
+      {{ with .Params.meetupphoto }}
+      <img alt="presentation photo" src="{{ . }}" />
+      {{ end }}
     </div>
+    {{ with .Params.slides }}
+    <h2>Slides</h2>
+    <div style='position: relative; width: 100%; height: 0px; padding-bottom: 60%;'>
+        <iframe src="{{ . }}" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%'></iframe>
+    </div>
+    <a href="{{ . }}">slides</a>
+    {{ end }}
   </div>
 
 </body>

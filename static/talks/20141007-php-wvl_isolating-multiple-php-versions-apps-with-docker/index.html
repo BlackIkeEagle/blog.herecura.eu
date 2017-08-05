@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Isolating multiple PHP versions/apps with docker</title>
+
+		<meta name="description" content="Howto run different apps with possible different php version requirements with docker">
+		<meta name="author" content="Ike Devolder">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+		<!-- custom additions -->
+		<link rel="stylesheet" href="assets/custom.css">
+	</head>
+
+	<body>
+		<div id="logo"><img src='assets/phpwvl.png' title='phpwvl' /></div>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Isolating multiple PHP versions/apps with docker</h1>
+				</section>
+
+				<section>
+					<h2>The Goal of this presentation</h2>
+					<ul>
+						<li>Highlight a specific usecase</li>
+						<li>Using Docker for our benefit</li>
+						<li>Inspire you to research more about Docker and co.</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>What this presentation is not</h2>
+					<ul>
+						<li>This is NOT an introduction into Docker</li>
+						<li>This is NOT a security talk</li>
+						<li>This is NOT an in depth talk about all the features Docker has</li>
+					</ul>
+				</section>
+
+				<section>
+					<section>
+						<h2>A very short introduction of docker</h2>
+						<img src='assets/docker.png' title='docker' />
+						<aside class='notes'>
+							<h2>keywords</h2>
+							<ul>
+								<li>container</li>
+								<li>cgroups</li>
+								<li>kernel namespaces</li>
+								<li>call it a chroot on steroids</li>
+							</ul>
+						</aside>
+					</section>
+
+					<section>
+						<p>
+							Docker is a container system, it uses resource isolation features of the Linux kernel such
+							as cgroups and kernel namespaces. This is used to isolate the process and its software stack
+							from the rest of the system without the overhead of a virtual machine. This will allow us
+							to have a predictable outcome of the process running.
+						</p>
+					</section>
+
+					<section>
+						<h2>Learn more about docker</h2>
+						<ul>
+							<li><a href='https://www.docker.com/'>docker website</a></li>
+							<li><a href='https://blog.docker.com/'>docker blog</a></li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<h2>The Goal</h2>
+					<ul>
+						<li>Single Server Machine</li>
+						<li>Multiple PHP installations</li>
+						<li>Multiple PHP apps</li>
+					</ul>
+				</section>
+
+				<section>
+					<section>
+						<h2>The Setup</h2>
+					</section>
+
+					<section>
+						<h2>ArchLinux</h2>
+						<img style='width: 50%' src='assets/archlinux.png' title='archlinux' />
+						<p>
+							Why ArchLinux as base OS ? Isn't Everyone using Debian based OS'es these days ?
+						</p>
+						<ol>
+							<li>I'm very familiar with it</li>
+							<li>systemd</li>
+						</ol>
+					</section>
+
+					<section>
+						<h2>nginx</h2>
+						<img style='width: 50%' src='assets/nginx.png' title='nginx' />
+						<p>
+							We'll use nginx because it is low hassle in configuration and works a lot better with
+							fpm versus some other webservers.
+						</p>
+					</section>
+
+					<section>
+						<h2>percona</h2>
+						<img style='width: 50%' src='assets/percona.png' title='percona' />
+						<p>
+							Just because MySQL is no longer officially supported on ArchLinux and MariaDB gave me issues
+							some time ago.
+						</p>
+					</section>
+
+					<section>
+						<h2>PHP versions</h2>
+						<img style='width: 50%' src='assets/php.svg' title='php' />
+						<ul>
+							<li>PHP 5.3 dockerized based on ubuntu 12.04</li>
+							<li>PHP 5.5 dockerized based on ubuntu 14.04</li>
+							<li>PHP 5.6 dockerized based on ArchLinux</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>PHP apps</h2>
+						<img style='height: 150px' src='assets/wordpress.png' title='wordpress' /><img style='height: 150px' src='assets/mybb.png' title='mybb' /><img style='height: 150px' src='assets/owncloud.jpg' title='owncloud' />
+						<ul>
+							<li>Wordpress: because it seems to be very widely used</li>
+							<li>MyBB: nostalgia to a long forgotten past</li>
+							<li>ownCloud: because it gives you back the control over your data</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<a title="By Dwight Sipler from Stow, MA, USA (I&#039;m BORED  Uploaded by Jacopo Werther) [CC-BY-2.0 (http://creativecommons.org/licenses/by/2.0)], via Wikimedia Commons" href="http://commons.wikimedia.org/wiki/File%3AIm_BORED_(3303387519).jpg">
+						<img width="512" alt="Im BORED (3303387519)" src="assets/Im_BORED_%283303387519%29.jpg" />
+					</a>
+				</section>
+
+				<section>
+					<section>
+						<h2>Building the containers</h2>
+						<p class='red'>
+							NOTE:<br />
+							Newlines will be added for presentation pruposes<br />
+							Only the relevant parts of the Dockerfile's is displayed
+						</p>
+					</section>
+
+					<section>
+						<h2>nginx</h2>
+						<pre class='stretch'><code class='bash'>
+FROM blackikeeagle/archlinux
+
+RUN pacman -Syu --noconfirm nginx
+RUN pacman -Scc --noconfirm
+RUN mkdir -p /etc/nginx/conf.d
+RUN mkdir -p /etc/nginx/sites-available
+RUN mkdir -p /etc/nginx/sites-enabled
+ADD ./config/nginx.conf /etc/nginx/nginx.conf
+ADD ./config/01-wordpress.conf /etc/nginx/sites-available/01-wordpress.conf
+ADD ./config/02-mybb.conf /etc/nginx/sites-available/02-mybb.conf
+ADD ./config/03-owncloud.conf /etc/nginx/sites-available/03-owncloud.conf
+RUN ln -s /etc/nginx/sites-available/01-wordpress.conf
+    /etc/nginx/sites-enabled/01-wordpress.conf
+RUN ln -s /etc/nginx/sites-available/02-mybb.conf
+    /etc/nginx/sites-enabled/02-mybb.conf
+RUN ln -s /etc/nginx/sites-available/03-owncloud.conf
+    /etc/nginx/sites-enabled/03-owncloud.conf
+
+EXPOSE 80
+
+CMD ["/usr/sbin/nginx"]
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>percona</h2>
+						<pre class='stretch'><code class='bash'>
+FROM blackikeeagle/archlinux
+
+RUN pacman -Syu --noconfirm percona-server
+RUN pacman -Scc --noconfirm
+RUN rm /etc/mysql/my.cnf
+ADD ./my.cnf /etc/mysql/my.cnf
+ADD ./create-mysql-structure.sh /opt/create-mysql-structure.sh
+RUN chmod +x /opt/create-mysql-structure.sh
+
+EXPOSE 3306
+
+USER mysql
+
+CMD ["/usr/bin/mysqld_safe", "--pid-file=/run/mysqld/mysqld.pid",
+    "--bind-address=0.0.0.0", "--skip-name-resolve", "--datadir=/var/lib/mysql"]
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>php 5.3</h2>
+						<pre class='stretch'><code class='bash'>
+FROM ubuntu:12.04
+
+# wordpress php deps
+RUN apt-get -y install php5-fpm php5-mysql php5-curl php5-gd php5-intl php-pear...
+
+RUN sed -e 's/.*daemonize.*/daemonize = no/' -i /etc/php5/fpm/php-fpm.conf
+RUN sed -e 's/.*cgi.fix_pathinfo.*/cgi.fix_pathinfo=0/'
+    -e 's/upload_max_filesize.*/upload_max_filesize = 100M/'
+    -e 's/post_max_size.*/post_max_size = 100M/' -i /etc/php5/fpm/php.ini
+RUN sed 's/.*listen =.*/listen = 0.0.0.0:9000/' -i /etc/php5/fpm/pool.d/www.conf
+RUN sed -e 's/.*listen =.*/listen = 0.0.0.0:9000/'
+    -e 's/.*catch_workers_output.*/catch_workers_output = yes/'
+    -i /etc/php5/fpm/pool.d/www.conf
+RUN echo "php_admin_value[error_log] = stdout\nphp_admin_flag[log_errors] = on"
+    >> /etc/php5/fpm/pool.d/www.conf
+
+EXPOSE 9000
+
+CMD ["/usr/sbin/php5-fpm"]
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>php 5.5</h2>
+						<pre class='stretch'><code class='bash'>
+FROM ubuntu:14.04
+
+# mybb php deps
+RUN apt-get -y install php5-fpm php5-mysql php5-gd php5-intl php-pear php5-sqlite
+
+RUN sed -e 's/.*cgi.fix_pathinfo.*/cgi.fix_pathinfo=0/' -i /etc/php5/fpm/php.ini
+RUN sed -e 's/.*listen =.*/listen = 0.0.0.0:9000/'
+    -e 's/.*catch_workers_output.*/catch_workers_output = yes/'
+    -i /etc/php5/fpm/pool.d/www.conf
+RUN echo "php_admin_value[error_log] = stdout\nphp_admin_flag[log_errors] = on"
+    >> /etc/php5/fpm/pool.d/www.conf
+
+EXPOSE 9000
+
+CMD ["/usr/sbin/php5-fpm", "-F"]
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>php 5.6</h2>
+						<pre class='stretch'><code class='bash'>
+FROM blackikeeagle/archlinux
+
+RUN pacman -Syu --noconfirm php-fpm php-gd php-mcrypt php-sqlite php-apcu
+RUN pacman -Scc --noconfirm
+
+RUN sed -e 's/.*cgi.fix_pathinfo.*/cgi.fix_pathinfo=0/' -i /etc/php/php.ini
+RUN sed -e 's/.*listen =.*/listen = 0.0.0.0:9000/'
+    -e 's/.*catch_workers_output.*/catch_workers_output = yes/'
+    -i /etc/php/php-fpm.conf
+RUN echo -e "php_admin_value[error_log] = stdout\nphp_admin_flag[log_errors] = on"
+    >> /etc/php/php-fpm.conf
+ADD ./enable_extensions.sh /tmp/enable_extensions.sh
+RUN /bin/sh /tmp/enable_extensions.sh && rm /tmp/enable_extensions.sh
+ADD ./apcu.ini /etc/php/conf.d/apcu.ini
+
+EXPOSE 9000
+
+CMD ["/usr/bin/php-fpm", "-F"]
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>What is important while building</h2>
+						<p>
+							There is actually one thing very important to keep in mind while building containers.
+							The processes running inside the container MUST NOT fork. So the process must stay in the
+							foreground, if it forks docker will assume the process is done and quit the container.
+						</p>
+					</section>
+
+					<section>
+						<h2>The Actual building</h2>
+						<p>
+							Lets just show one example of building, basically it is always the same.
+						</p>
+						<pre><code class='bash'>
+$ cd /var/docker/percona
+#./build.sh
+
+$ docker build -t blackikeeagle/percona .
+						</code></pre>
+						<p><small>for all options: docker build --help</small></p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Check what images we have</h2>
+						<p>
+							After building all our base containers we might want to find out what their names are
+							and maybe if we want to completely rebuild throw away an existing container and start
+							'from scratch'.
+						</p>
+						<p><small>for all options: docker images --help</small></p>
+					</section>
+
+					<section>
+						<h2>For our usecase:</h2>
+						<pre class='stretch'><code class='bash'>
+$ docker images
+REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+sample/owncloud-fpm       latest              5911540f5415        40 minutes ago      410.8 MB
+sample/mybb-fpm           latest              143668a193b2        42 minutes ago      288.7 MB
+sample/wordpress-fpm      latest              aa05762f4452        45 minutes ago      369.8 MB
+blackikeeagle/percona     latest              fd2265e8f37d        49 minutes ago      605.7 MB
+blackikeeagle/nginx       latest              ca827303f7fd        50 minutes ago      328 MB
+ubuntu                    14.04               6b4e8a7373fe        45 hours ago        194.8 MB
+ubuntu                    12.04               b45a6cbea6d1        45 hours ago        111 MB
+blackikeeagle/archlinux   latest              b4bbf04b414e        5 days ago          312.2 MB
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>Handling the images</h2>
+						<ul>
+							<li>run</li>
+							<li>update</li>
+							<li>remove</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Running a container</h2>
+						<p><small>for all options: docker run --help</small></p>
+					</section>
+
+					<section>
+						<h2>Testdrive a container</h2>
+						<pre><code class='bash'>
+docker run blackikeeagle/percona
+						</code></pre>
+						<p>
+							We'll see if it stays up. If so we've done superb
+						</p>
+					</section>
+
+					<section>
+						<h2>Maybe debug</h2>
+						<pre><code class='bash'>
+docker run -i -t blackikeeagle/percona /bin/bash
+						</code></pre>
+						<p>
+							We override the default CMD here with /bin/bash. This way we might be able to find out why
+							a container is not running as we were expecting.
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<img src='assets/748033123_fc7978316b_b.jpg' title='http://www.dragondrop.org/2013/03/creative-commons-and-the-compfight/' />
+				</section>
+
+				<section>
+					<section>
+						<h2>Getting there</h2>
+					</section>
+
+					<section>
+						<h2>Our apps</h2>
+						<p>
+							To make it easy we just 'install' the apps on our host in subfolders of /srv
+						</p>
+						<ul>
+							<li>/srv/wordpress</li>
+							<li>/srv/mybb</li>
+							<li>/srv/owncloud</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Percona (MySQL)</h2>
+						<p>
+							Since docker containers are stateless we'll have to store our mysql data in a volume.
+							This way we can persist is between 'runs'.
+						</p>
+						<ul>
+							<li>/var/lib/mysql</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Percona (MySQL)</h2>
+						<p>We'll run our percona container with a volume mounted to the host</p>
+						<pre><code class='bash'>
+$ docker -v /var/lib/mysql:/var/lib/mysql blackikeeagle/percona
+						</code></pre>
+						<p><small>NOTE: we need to initialize mysql in /var/lib/mysql</small></p>
+					</section>
+
+					<section>
+						<h2>The Docker network setup</h2>
+						<ul>
+							<li>Docker internal network: 192.168.1.0/24</li>
+							<li>it is similar to host only networking with vagrant</li>
+							<li>'Host' will get 192.168.1.1</li>
+							<li>the hosts exposed services will be reachable on 192.168.1.1</li>
+						</ul>
+						<!--
+						<p>
+							In the testcase the docker network is running on 192.168.1.0/24. For those who are familiar
+							with the host-only networking from vagrant, you can comare its behaviour with that.
+							This means our host will connnect from 192.168.1.1 to the docker containers. Also the
+							services exposed (meaning not only to localhost) on the host will be reacheable from
+							within the containers.
+						</p>
+						-->
+					</section>
+
+					<section>
+						<h2>The fpm's</h2>
+						<p>
+							To make it easy for ourself we'll just run the fpm's on different ports, lets say
+							9001, 9002, 9003 :)
+						</p>
+					</section>
+
+					<section>
+						<h2>An fpm</h2>
+						<pre><code class='bash'>
+$ docker run \
+    -v /srv/owncloud:/srv/owncloud \
+    -p 192.168.1.1:9003:9000 \
+    sample/owncloud-fpm
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Bringing it all together with ports</h2>
+					</section>
+
+					<section>
+						<h2>running percona</h2>
+						<pre><code class='bash'>
+$ docker run \
+    -v /var/lib/mysql:/var/lib/mysql \
+    -p 192.168.1.1:3306:3306 blackikeeagle/percona
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>running the fpm's</h2>
+						<pre><code class='bash'>
+$ docker run \
+    -v /srv/wordpress:/srv/wordpress \
+    -p 192.168.1.1:9001:9000 sample/wordpress-fpm
+						</code></pre>
+						<pre><code class='bash'>
+$ docker run \
+    -v /srv/mybb:/srv/mybb \
+    -p 192.168.1.1:9002:9000 sample/mybb-fpm
+						</code></pre>
+						<pre><code class='bash'>
+$ docker run \
+    -v /srv/owncloud:/srv/owncloud \
+    -p 192.168.1.1:9003:9000 sample/owncloud-fpm
+						</code></pre>
+						<p><small>Here you see a one-to-one mapping of the volume's, this is not required, but handy</small></p>
+					</section>
+
+					<section>
+						<h2>nginx fpm config</h2>
+						<pre><code class='nginx'>
+# Configure PHP-FPM stuff
+location ~ ^(?&lt;script_name&gt;.+?\.php)(?&lt;path_info&gt;/.*)?$ {
+    try_files $script_name = 404;
+    fastcgi_pass  192.168.1.1:9003;
+    fastcgi_param PATH_INFO $path_info;
+    fastcgi_param HTTPS $https;
+    fastcgi_intercept_errors on;
+
+    fastcgi_param PHP_VALUE
+        &quot;upload_max_filesize = 1024M \n post_max_size = 1024M&quot;;
+    fastcgi_param SCRIPT_FILENAME /srv/owncloud$script_name;
+    include fastcgi_params;
+}
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>running nginx</h2>
+						<pre><code class='bash'>
+docker run \
+    -v /srv/wordpress:/srv/wordpress \
+    -v /srv/mybb:/srv/mybb \
+    -v /srv/owncloud:/srv/owncloud \
+    -p 0.0.0.0:80:80 blackikeeagle/nginx
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Bringing it all together with --link</h2>
+					</section>
+
+					<section>
+						<h2>running percona</h2>
+						<pre><code class='bash'>
+$ docker run \
+    -v /var/lib/mysql:/var/lib/mysql \
+    -p 192.168.1.1:3306:3306 blackikeeagle/percona
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>running the fpm's</h2>
+						<pre><code class='bash'>
+$ docker run \
+    -v /srv/wordpress:/srv/wordpress \
+    --link percona:mysql sample/wordpress-fpm
+						</code></pre>
+						<pre><code class='bash'>
+$ docker run \
+    -v /srv/mybb:/srv/mybb \
+    --link percona:mysql sample/mybb-fpm
+						</code></pre>
+						<pre><code class='bash'>
+$ docker run \
+    -v /srv/owncloud:/srv/owncloud \
+    --link percona:mysql sample/owncloud-fpm
+						</code></pre>
+						<p><small>Here you see a one-to-one mapping of the volume's, this is not required, but handy</small></p>
+					</section>
+
+					<section>
+						<h2>nginx fpm config</h2>
+						<pre><code class='nginx'>
+# Configure PHP-FPM stuff
+location ~ ^(?&lt;script_name&gt;.+?\.php)(?&lt;path_info&gt;/.*)?$ {
+    try_files $script_name = 404;
+    fastcgi_pass  owncloud:9000;
+    fastcgi_param PATH_INFO $path_info;
+    fastcgi_param HTTPS $https;
+    fastcgi_intercept_errors on;
+
+    fastcgi_param PHP_VALUE
+        &quot;upload_max_filesize = 1024M \n post_max_size = 1024M&quot;;
+    fastcgi_param SCRIPT_FILENAME /srv/owncloud$script_name;
+    include fastcgi_params;
+}
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>running nginx</h2>
+						<pre><code class='bash'>
+docker run \
+    -v /srv/wordpress:/srv/wordpress \
+    -v /srv/mybb:/srv/mybb \
+    -v /srv/owncloud:/srv/owncloud \
+    --link wordpress-fpm:wordpress \
+    --link mybb-fpm:mybb \
+    --link owncloud-fpm:owncloud \
+    -p 0.0.0.0:80:80 blackikeeagle/nginx
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>environment variables</h2>
+						<pre><code>
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=d5f803ba46fe
+MYBB_PORT=tcp://192.168.1.4:9000
+MYBB_PORT_9000_TCP=tcp://192.168.1.4:9000
+MYBB_PORT_9000_TCP_ADDR=192.168.1.4
+MYBB_PORT_9000_TCP_PORT=9000
+MYBB_PORT_9000_TCP_PROTO=tcp
+MYBB_NAME=/clever_yonath/mybb
+MYBB_ENV_DEBIAN_FRONTEND=noninteractive
+OWNCLOUD_PORT=tcp://192.168.1.5:9000
+...
+WORDPRESS_NAME=/clever_yonath/wordpress
+WORDPRESS_ENV_DEBIAN_FRONTEND=noninteractive
+HOME=/root
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>hosts entries</h2>
+						<pre><code>
+192.168.1.8     040a554b4ed3
+::1     localhost ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+127.0.0.1       localhost
+192.168.1.3     wordpress
+192.168.1.4     mybb
+192.168.1.5     owncloud
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>using --link</h2>
+						<p>
+							For this kind of setup using --link will be more error prone than using the ports method.
+							When an fpm container accidentally restarts, the link from nginx to it will be gone.
+							With the port method it will be just fine when fpm is back up.
+						</p>
+					</section>
+
+					<section>
+						<h2>using --link</h2>
+						<p>
+							If you want to use docker for developemnt boxes, I personally would prefer using --link,
+							especially when you have a lot of different projects.
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>real life</h2>
+						<p>
+							Yeah, you know, docker is cool and all, but in a VM or bare metal server we just do
+							`systemctl enable nginx.service` and we are sure if the machine reboots everything is up
+						</p>
+						<p><small>on debian it would be `service nginx start`</small></p>
+					</section>
+
+					<section>
+						<h2>We can do that</h2>
+						<p>
+							We can easily write unitfiles for our docker containers so they will be started automatically
+							at boot.
+						</p>
+					</section>
+
+					<section>
+						<h2>fpm</h2>
+						<pre class='stretch'><code class='ini'>
+[Unit]
+Description=mybb-fpm
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill mybb-fpm
+ExecStartPre=-/usr/bin/docker rm mybb-fpm
+ExecStart=/usr/bin/docker run --name mybb-fpm
+    -v /srv/mybb:/srv/mybb -p 192.168.1.1:9002:9000 sample/mybb-fpm
+ExecStop=/usr/bin/docker stop mybb-fpm
+
+[Install]
+WantedBy=multi-user.target
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>percona</h2>
+						<pre class='stretch'><code class='ini'>
+[Unit]
+Description=percona
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill percona
+ExecStartPre=-/usr/bin/docker rm percona
+ExecStart=/usr/bin/docker run --name percona
+    -v /var/lib/mysql:/var/lib/mysql -p 192.168.1.1:3306:3306 blackikeeagle/percona
+ExecStop=/usr/bin/docker stop percona
+
+[Install]
+WantedBy=multi-user.target
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>nginx</h2>
+						<pre class='stretch'><code class='ini'>
+[Unit]
+Description=nginx
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill nginx
+ExecStartPre=-/usr/bin/docker rm nginx
+ExecStart=/usr/bin/docker run --name nginx
+    -v /srv/wordpress:/srv/wordpress -v /srv/mybb:/srv/mybb
+    -v /srv/owncloud:/srv/owncloud -p 0.0.0.0:80:80 blackikeeagle/nginx
+ExecStop=/usr/bin/docker stop nginx
+
+[Install]
+WantedBy=multi-user.target
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>why systemd</h2>
+						<p>
+							systemd is by now the most spread next generation init system for linux.
+							Even debian and ubuntu have voted to use it in the future. Although these still use
+							upstart, we need to look at the future.
+						</p>
+						<aside class='notes'>
+							<ul>
+								<li>unitfiles for --link can be found in the sample code</li>
+							</ul>
+						</aside>
+					</section>
+
+					<section>
+						<h2>enable on boot</h2>
+						<pre><code class='bash'>
+$ systemctl enable wordpress-fpm.service \
+    mybb-fpm.service owncloud-fpm.service \
+    percona.service nginx.service
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>done</h2>
+						<p>
+							We now have a working minimal system where all our services are running in docker containers.
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Demo (Code)</h2>
+					<p>
+						There is a working demo for this presentation, the code can be found on github:<br />
+						<a href='https://github.com/BlackIkeEagle/docker-php-samples'>https://github.com/BlackIkeEagle/docker-php-samples</a>
+					</p>
+				</section>
+
+				<section>
+					<section>
+						<h2>NOTES</h2>
+					</section>
+
+					<section>
+						<h2>dockerized volumes</h2>
+						<p>
+							Instead of mounting volumes on the host system we could have used dockerized volumes.
+							The reason not to do that is, it is very hard to persist your data between boots that way.
+						</p>
+					</section>
+
+					<section>
+						<h2>sites-enabled volume</h2>
+						<p>
+							In this usecase the sites-enabled is pre-filled with the configurations we wanted to have.
+							A more flexible approach could be to add a volume to /etc/nginx/sites-enabled so you can
+							more dynamically update your setup.
+						</p>
+					</section>
+
+					<section>
+						<h2>'log' into a running container</h2>
+						<p>
+							Before v 0.9 of docker it was impossible to get into a running container and do some
+							additional stuff with it. If you have a recent linux distribution with util-linux &gt; 2.23,
+							you can use nsenter.
+						</p>
+						<pre><code class='bash'>
+$ nsenter --target $(docker inspect --format "{{ .State.Pid }}" nginx) \
+    --mount --ipc --uts --net --pid
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>nginx reload</h2>
+						<p>
+							Enter the container with nsenter and ...
+						</p>
+						<pre><code class='bash'>
+$ /usr/bin/kill -HUP 1
+						</pre></code>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Interesting projects using docker</h2>
+					</section>
+
+					<section>
+						<h2>CoreOS</h2>
+						<img style='width: 50%' src='assets/coreos.png' title='coreos' />
+						<p>
+							CoreOS is a operating system specifically designed around docker. With some additional tools
+							it is the OS that can be run as a cluster and be setup for High Availabilty environments
+						</p>
+					</section>
+
+					<section>
+						<h2>Mesos</h2>
+						<img style='width: 50%' src='assets/mesos.png' title='mesos' />
+						<p>
+							Apache Mesos is a cluster manager that simplifies the complexity of running applications on a shared pool of servers.
+						</p>
+					</section>
+
+					<section>
+						<h2>Fig</h2>
+						<img style='width: 50%' src='assets/fig.png' title='fig' />
+						<p>
+							Fast, isolated development environments using Docker.
+						</p>
+					</section>
+
+					<section>
+						<h2>Flocker</h2>
+						<img style='width: 50%' src='assets/clusterhq.jpg' title='clusterhq' />
+						<p>
+							Flocker is a data volume manager and multi-host Docker cluster management tool.
+						</p>
+					</section>
+
+					<section>
+						<h2>Flynn</h2>
+						<p>
+							Flynn is a PaaS (Platform as a Service) based upon container technologies. And it can easily
+							handle statefull applications.
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Questions ?</h2>
+					<p class='fragment'><small>WARNING: you might have a lot of questions I don't know the answer to.</small></p>
+				</section>
+
+				<section>
+					<h2>Usefull links</h2>
+					<ul>
+						<li><a href='https://docker.com'>docker.com</a></li>
+						<li><a href='https://blog.docker.com'>docker blog</a></li>
+						<li><a href='https://github.com/veggiemonk/awesome-docker'>awesome docker</a></li>
+						<li><a href='http://www.nkode.io/2014/08/24/valuable-docker-links.html'>nkode valuable docker links</a></li>
+						<li><a href='https://coreos.com'>CoreOS</a></li>
+						<li><a href='https://mesos.apache.org'>Apache Mesos</a></li>
+						<li><a href='http://www.fig.sh'>fig</a></li>
+						<li><a href='https://clusterhq.com'>ClusterHQ</a></li>
+						<li><a href='https://flynn.io'>flynn.io</a></li>
+						<li><a href='http://www.centurylinklabs.com/docker-filesystem-persistence-with-flocker/'>centurylinklabs docker filesystem persistence with flocker</a></li>
+						<li><a href='http://www.centurylinklabs.com/flynn-vs-deis-the-tale-of-two-docker-micro-paas-technologies/'>centurylinklabs flyn vs deis</a></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Thanks.</h2>
+					<p><a href="https://joind.in/talk/view/11934">https://joind.in/talk/view/11934</a></p>
+					<p><br /></p>
+					<h2>Ike Devolder</h2>
+					<p>@BlackIkeEagle</p>
+					<p>Senior Webdeveloper - Studio Emma</p>
+					<p>Archlinux Trusted User</p>
+					<p>enthousiast about docker</p>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

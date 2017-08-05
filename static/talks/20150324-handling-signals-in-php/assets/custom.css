@@ -1,0 +1,28 @@
+.red {
+	color: #ff2c2d
+}
+
+#logo {
+	position: fixed;
+	bottom: 1em;
+	left: 1em;
+}
+
+#logo img {
+	border: 0;
+	margin: 0;
+	background: transparent;
+	box-shadow: 0 0 0 0 #000;
+	width: 8em;
+}
+
+.emphasize {
+	color: cyan;
+}
+
+.highlight {
+    border: 1px solid #AAA;
+    background-color: #DDD;
+    color: #333;
+}
+

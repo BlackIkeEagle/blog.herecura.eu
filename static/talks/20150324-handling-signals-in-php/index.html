@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Handling signals in PHP</title>
+
+		<meta name="description" content="How can and will we handle signals sent to our php 'script/app'">
+		<meta name="author" content="Ike Devolder">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta property="og:image" content="http://s3.amazonaws.com/hakim-static/reveal-js/sharer-image.png">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+		<!-- custom additions -->
+		<link rel="stylesheet" href="assets/custom.css">
+
+        <style>
+            h2 { text-align: left; }
+            li { list-style-type: none; }
+        </style>
+
+        <!-- vim -->
+        <style type="text/css">
+        <!--
+        pre.vimCodeElement { font-family: monospace; color: #657b83; background-color: #fdf6e3; border: 0; box-shadow: none; }
+        .Statement { color: #719e07; }
+        .LineNr { color: #93a1a1; background-color: #eee8d5; padding-bottom: 1px; }
+        .PreProc { color: #cb4b16; }
+        .Constant { color: #2aa198; }
+        .Special { color: #dc322f; }
+        .Identifier { color: #268bd2; }
+        .Comment { color: #93a1a1; font-style: italic; }
+        -->
+        </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+                    <h1 style="text-align: right;">Handling signals</h1>
+                    <h1 style="text-align: right;">in <span style="color: rgb(136, 146, 191);">PHP</span></h1>
+				</section>
+
+                <section>
+
+                    <section data-background='assets/signals-from-space.jpg'>
+                        <aside class='notes'>
+                            <ul>
+                                <li>Signals, wtf zijn signals</li>
+                                <li>Signals, limited form of ipc</li>
+                                <li>Signals, os interrupts target process to deliver signal</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <blockquote cite="http://en.wikipedia.org/wiki/Unix_signal">
+                            "Signals are a limited form of inter-process communication used in Unix, Unix-like, and other POSIX-compliant operating systems. A signal is an asynchronous notification sent to a process or to a specific thread within the same process in order to notify it of an event that occurred. Signals have been around since the 1970s Bell Labs Unix and have been more recently specified in the POSIX standard."
+                        </blockquote>
+                        <p><small><a href="http://en.wikipedia.org/wiki/Unix_signal">http://en.wikipedia.org/wiki/Unix_signal</a></small></p>
+                        <aside class='notes'>
+                            <ul>
+                                <li>You can read this later</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <blockquote cite="http://en.wikipedia.org/wiki/Unix_signal">
+                            "When a signal is sent, the operating system interrupts the target process's normal flow of execution to deliver the signal. Execution can be interrupted during any non-atomic instruction. If the process has previously registered a signal handler, that routine is executed. Otherwise, the default signal handler is executed."
+                        </blockquote>
+                        <p><small><a href="http://en.wikipedia.org/wiki/Unix_signal">http://en.wikipedia.org/wiki/Unix_signal</a></small></p>
+                        <aside class='notes'>
+                            <ul>
+                                <li>You can read this later</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Some known ways to send signals</h2>
+                        <ul style="float: left">
+                            <li class="fragment">Ctrl-C</li>
+                            <li class="fragment">Ctrl-Z</li>
+                            <li class="fragment">Ctrl-\</li>
+                            <li class="fragment">The <span class='highlight'>kill</span> command</li>
+                        </ul>
+                        <aside class='notes'>
+                            <ul>
+                                <li>Ctrl-C sends INT signal (SIGINT) terminating the running process</li>
+                                <li>Ctrl-Z sends TSTP signal (SIGTSTP) suspending the running process</li>
+                                <li>Ctrl-\ sends QUIT signal (SIGQUIT) terminating the running process and normally dumping core</li>
+                                <li>The kill command / kill -s SIGNAL PID</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                </section>
+
+                <section>
+
+                    <section data-background='assets/wave.jpg'>
+                        <aside class='notes'>
+                            <ul>
+                                <li>Now we will go to the point we will handle signals</li>
+                                <li>What can we handle in PHP</li>
+                                <li>and how we will do it</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Signals we can catch in <span style="color: rgb(136, 146, 191);">PHP</span></h2>
+                        <div>
+                            <div class="fragment" style="width: 48%; display: inline-block; margin-right: 2%; vertical-align: top;">
+                                <ul>
+                                    <li>SIGHUP</li>
+                                    <li>SIGINT</li>
+                                    <li>SIGUSR1</li>
+                                    <li>SIGUSR2</li>
+                                    <li>SIGQUIT</li>
+                                    <li>SIGILL</li>
+                                    <li>SIGABRT</li>
+                                    <li>SIGFPE</li>
+                                    <li>SIGSEGV</li>
+                                </ul>
+                            </div>
+                            <div class="fragment" style="width: 48%; display: inline-block;">
+                                <ul>
+                                    <li>SIGPIPE</li>
+                                    <li>SIGALRM</li>
+                                    <li>SIGTERM</li>
+                                    <li>SIGCHLD</li>
+                                    <li>SIGCONT</li>
+                                    <li>SIGTSTP</li>
+                                    <li>SIGTTIN</li>
+                                    <li>SIGTTOU</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <aside class='notes'>
+                            <ul>
+                                <li>There are 17 signals we can catch</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2 style="color: rgb(136, 146, 191);">Ticks</h2>
+                        <p class="fragment">
+                           can be described as events that can happen between the normal execution of the code 
+                        </p>
+                        <p>
+                        <br />
+                        </p>
+                        <div style="width: 62%; display: inline-block; margin-right: 2%; vertical-align: top;"></div>
+                        <div style="width: 35%; display: inline-block;">
+                            <div class="fragment" style="text-align: left">
+                                <span style="color: #5FBA7A">declare</span>(ticks = <span style="color: #BA5F9F">1</span>);
+                            </div>
+                            <p>
+                            </p>
+                            <div class="fragment" style="text-align: left">
+                                <span style="color: #5FBA7A">declare</span>(ticks = <span style="color: #BA5F9F">1</span>) {
+                                <br />
+                                <span style="color: #5F9FBA">&nbsp;&nbsp;&nbsp;&nbsp;&sol;&sol; in scope</span>
+                                <br />
+                                }
+                                <br />
+                                <span style="color: #5F9FBA">&sol;&sol; out scope</span>
+                            </div>
+                        </div>
+                        <aside class='notes'>
+                            <ul>
+                                <li>first declare ticks</li>
+                                <li>tick is event on every X low level statements</li>
+                                <li>not everything is tickable</li>
+                                <li>declare for entire file</li>
+                                <li>for specific scope</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <blockquote cite="http://php.net/manual/en/control-structures.declare.php">
+                            "A tick is an event that occurs for every N low-level tickable statements executed by the parser within the declare block. The value for N is specified using ticks=N within the declare block's directive section.
+                        </blockquote>
+                        <blockquote cite="http://php.net/manual/en/control-structures.declare.php">
+                            "Not all statements are tickable. Typically, condition expressions and argument expressions are not tickable."
+                        </blockquote>
+                        <p><small><a href="http://php.net/manual/en/control-structures.declare.php">http://php.net/manual/en/control-structures.declare.php</a></small></p>
+                        <aside class='notes'>
+                            <ul>
+                                <li>You can read this later</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2 style="color: rgb(136, 146, 191);">Ticks</h2>
+                        <p class="fragment" style="text-align: left;">
+                            ticks set to a low value gives you much control but has a performance impact
+                        </p>
+                        <p>
+                        <br />
+                        </p>
+                        <p class="fragment" style="text-align: right;">
+                            ticks set to a  high value give you less control but impact performance less
+                        </p>
+                        <aside class='notes'>
+                            <ul>
+                                <li>1 is the lowest, at every possible tick</li>
+                                <li>higher will lead to slower response to the signal</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Alternative</h2>
+                        <p class="fragment" style="text-align: left;">You can manually set in your code when the signals can be handled</p>
+                        <p>
+                        <br />
+                        </p>
+                        <div style="width: 62%; display: inline-block; margin-right: 2%; vertical-align: top;"></div>
+                        <div style="width: 35%; display: inline-block;">
+                            <div class="fragment" style="text-align: left">
+                                <span style="color: #5FBA7A">pcntl_signal_dispatch</span>();
+                            </div>
+                        </div>
+                        <aside class='notes'>
+                            <ul>
+                                <li>there is no need to declare ticks when you use pcntl_signal_dispatch</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                </section>
+
+                <section>
+
+                    <section data-background='assets/YEAR_0.jpg'>
+                        <aside class='notes'>
+                            <ul>
+                                <li>Handling them for real now :)</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Signal handler</h2>
+                        <div style="width: 27%; display: inline-block; margin-right: 2%; vertical-align: top;"></div>
+                        <div style="width: 71%; display: inline-block;">
+                            <div class="fragment" style="text-align: left">
+                                <span style="color: #5FBA7A">pcntl_signal</span>(SIGNAL, <span style="color: #BA5F9F">'signalhandler'</span>);
+                            </div>
+                            <p>
+                            </p>
+                            <div class="fragment" style="text-align: left">
+                                <span style="color: #BA5F9F">function</span>&nbsp;<span style="color: #5FBA7A">signalhandler</span>(<span style="color: #BA5F9F">$</span>signal) {
+                                <br />
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #5FBA7A">echo</span>&nbsp;<span style="color: #BA5F9F">'Caught a signal'</span>;
+                                <br />
+                                &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #5FBA7A">return</span>;
+                                <br />
+                                }
+                            </div>
+                        </div>
+                        <aside class='notes'>
+                            <ul>
+                                <li>we must use pcntl_signal to define what function/method to use for the signal</li>
+                                <li>and then ofcourse implement that method</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section data-background="#fdf6e3">
+                                <h2 style="color: #002b36">Handling a signal (ticks)</h2>
+<pre class="fragment vimCodeElement">
+<span id="L1" class="LineNr"> 1 </span><span class="Special">&lt;?php</span>
+<span id="L2" class="LineNr"> 2 </span>
+<span id="L3" class="LineNr"> 3 </span><span class="Statement">declare</span><span class="Special">(</span>ticks <span class="Statement">=</span> <span class="Constant">1</span><span class="Special">)</span>;
+<span id="L4" class="LineNr"> 4 </span>
+<span id="L5" class="LineNr"> 5 </span><span class="Identifier">pcntl_signal</span><span class="Special">(</span>SIGINT, '<span class="Constant">signalhandler</span>'<span class="Special">)</span>;
+<span id="L6" class="LineNr"> 6 </span>
+<span id="L7" class="LineNr"> 7 </span><span class="PreProc">function</span> signalhandler<span class="Special">(</span><span class="Statement">$</span><span class="Identifier">signal</span><span class="Special">)</span>
+<span id="L8" class="LineNr"> 8 </span><span class="Special">{</span>
+<span id="L9" class="LineNr"> 9 </span>    <span class="PreProc">echo</span> '<span class="Constant">Caught signal </span>' <span class="Statement">.</span> <span class="Statement">$</span><span class="Identifier">signal</span> <span class="Statement">.</span> PHP_EOL;
+<span id="L10" class="LineNr">10 </span>    <span class="Statement">return</span>;
+<span id="L11" class="LineNr">11 </span><span class="Special">}</span>
+<span id="L12" class="LineNr">12 </span>
+<span id="L13" class="LineNr">13 </span><span class="Comment">// keep on running so we can actually send a signal ;)</span>
+<span id="L14" class="LineNr">14 </span><span class="Statement">while</span> <span class="Special">(</span><span class="Constant">true</span><span class="Special">)</span> <span class="Special">{</span>
+<span id="L15" class="LineNr">15 </span><span class="Special">}</span>
+</pre>
+                    </section>
+
+                    <section data-background="#fdf6e3">
+                        <h2 style="color: #002b36">Handling a signal (dispatch)</h2>
+<pre class='fragment vimCodeElement'>
+<span id="L1" class="LineNr"> 1 </span><span class="Special">&lt;?php</span>
+<span id="L2" class="LineNr"> 2 </span>
+<span id="L3" class="LineNr"> 3 </span><span class="Identifier">pcntl_signal</span><span class="Special">(</span>SIGINT, '<span class="Constant">signalhandler</span>'<span class="Special">)</span>;
+<span id="L4" class="LineNr"> 4 </span>
+<span id="L5" class="LineNr"> 5 </span><span class="PreProc">function</span> signalhandler<span class="Special">(</span><span class="Statement">$</span><span class="Identifier">signal</span><span class="Special">)</span>
+<span id="L6" class="LineNr"> 6 </span><span class="Special">{</span>
+<span id="L7" class="LineNr"> 7 </span>    <span class="PreProc">echo</span> '<span class="Constant">Caught signal </span>' <span class="Statement">.</span> <span class="Statement">$</span><span class="Identifier">signal</span> <span class="Statement">.</span> PHP_EOL;
+<span id="L8" class="LineNr"> 8 </span>    <span class="Statement">return</span>;
+<span id="L9" class="LineNr"> 9 </span><span class="Special">}</span>
+<span id="L10" class="LineNr">10 </span>
+<span id="L11" class="LineNr">11 </span><span class="Comment">// keep on running so we can actually send a signal ;)</span>
+<span id="L12" class="LineNr">12 </span><span class="Statement">while</span> <span class="Special">(</span><span class="Constant">true</span><span class="Special">)</span> <span class="Special">{</span>
+<span id="L13" class="LineNr">13 </span>    pcntl_signal_dispatch<span class="Special">()</span>;
+<span id="L14" class="LineNr">14 </span><span class="Special">}</span>
+</pre>
+                    </section>
+
+                    <section>
+                        <h2 style="color: #FF6666">Wow that's some nasty code</h2>
+                        <aside class='notes'>
+                            <ul>
+                                <li>You can be an asshole and make your program allmost unkillable</li>
+                                <li>Dont!!!</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2 style="text-align: center">Interesting usecase: <span style="color: rgb(136, 146, 191);">Alarms</span></h2>
+                        <p class="fragment" style="text-align: left;">
+                            We can send the SIGALRM signal from within our script
+                        </p>
+                        <p>
+                        <br />
+                        </p>
+                        <p class="fragment" style="text-align: right;">
+                            Could be a very nice trick to show progress
+                        </p>
+                        <p>
+                        <br />
+                        </p>
+                        <div style="width: 62%; display: inline-block; margin-right: 2%; vertical-align: top;"></div>
+                        <div style="width: 35%; display: inline-block;">
+                            <div class="fragment" style="text-align: left">
+                                <span style="color: #5FBA7A">pcntl_alarm</span>(interval);
+                            </div>
+                        </div>
+                        <aside class='notes'>
+                            <ul>
+                                <li>pcntl_alarm sends periodic SIGALRM</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section data-background="#fdf6e3">
+                        <h2 style="color: #002b36">Alarm !</h2>
+<pre class='fragment vimCodeElement'>
+<span id="L1" class="LineNr"> 1 </span><span class="Special">&lt;?php</span>
+<span id="L2" class="LineNr"> 2 </span>
+<span id="L3" class="LineNr"> 3 </span><span class="Statement">declare</span><span class="Special">(</span>ticks <span class="Statement">=</span> <span class="Constant">1</span><span class="Special">)</span>;
+<span id="L4" class="LineNr"> 4 </span>
+<span id="L5" class="LineNr"> 5 </span><span class="Identifier">pcntl_signal</span><span class="Special">(</span>SIGALRM, '<span class="Constant">alarmhandler</span>'<span class="Special">)</span>;
+<span id="L6" class="LineNr"> 6 </span>pcntl_alarm<span class="Special">(</span><span class="Constant">5</span><span class="Special">)</span>; <span class="Comment">// SIGALRM after 5 seconds</span>
+<span id="L7" class="LineNr"> 7 </span>
+<span id="L8" class="LineNr"> 8 </span><span class="PreProc">function</span> alarmhandler<span class="Special">(</span><span class="Statement">$</span><span class="Identifier">signal</span><span class="Special">)</span>
+<span id="L9" class="LineNr"> 9 </span><span class="Special">{</span>
+<span id="L10" class="LineNr">10 </span>    <span class="PreProc">echo</span> &quot;<span class="Constant">Alarm !</span>&quot; <span class="Statement">.</span> PHP_EOL;
+<span id="L11" class="LineNr">11 </span>    <span class="PreProc">echo</span> &quot;<span class="Constant">Periodic progress output ?</span>&quot; <span class="Statement">.</span> PHP_EOL;
+<span id="L12" class="LineNr">12 </span>    pcntl_alarm<span class="Special">(</span><span class="Constant">5</span><span class="Special">)</span>; <span class="Comment">// we want it every 5 seconds so set again</span>
+<span id="L13" class="LineNr">13 </span>    <span class="Statement">return</span>;
+<span id="L14" class="LineNr">14 </span><span class="Special">}</span>
+<span id="L15" class="LineNr">15 </span>
+<span id="L16" class="LineNr">16 </span><span class="Comment">// keep on running so we can actually send a signal ;)</span>
+<span id="L17" class="LineNr">17 </span><span class="Statement">while</span> <span class="Special">(</span><span class="Constant">true</span><span class="Special">)</span> <span class="Special">{</span>
+<span id="L18" class="LineNr">18 </span><span class="Special">}</span>
+</pre>
+                    </section>
+
+                    <section>
+                        <h2>Extra signal functionality</h2>
+                        <ul>
+                            <li><span style="color: #5FBA7A">pcntl_sigprocmask</span> (un)block specific signals</li>
+                            <li><span style="color: #5FBA7A">pcntl_sigwaitinfo</span> suspend execution until a set of signals is received</li>
+                            <li><span style="color: #5FBA7A">pcntl_sigtimedwait</span> suspend execution and wait for signals with timeout</li>
+                        </ul>
+                    </section>
+
+                </section>
+
+                <section data-background="assets/orion-eft-1-flight-reentry1.jpg">
+                    <aside class='notes'>
+                        <ul>
+                            <li>live demo</li>
+                            <li>sample4, change ticks to show the slowdown when ticks is higher</li>
+                            <li>sample5, all signals we can handle</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <div>
+                        <div style="width: 48%; display: inline-block; margin-right: 2%; vertical-align: top;">
+                            <h2><span style="color: rgb(136, 146, 191);">Why</span> would we use this ?</h2>
+                        </div>
+                        <div style="width: 48%; display: inline-block;">
+                            <ul>
+                                <li class="fragment">report progress</li>
+                                <li class="fragment">reload configuration</li>
+                                <li class="fragment">periodic reload to free resources</li>
+                                <li class="fragment">...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+				<section>
+                    <div style="width: 50%; display: inline-block; margin-right: 2%; vertical-align: top;">
+					<h2>Thanks.</h2>
+					<p style="text-align: left;"><a href="https://joind.in/14176">https://joind.in/14176</a></p>
+                    </div>
+                    <div style="width: 46%; display: inline-block;">
+                        <img src="assets/joindin-handling-signals-in-php.png" alt="joindin qr" style="width: 40%" />
+                    </div>
+					<p><br /></p>
+					<h2>Ike Devolder</h2>
+					<p style="text-align: left;">@BlackIkeEagle</p>
+					<p style="text-align: left;">Senior Webdeveloper - Studio Emma</p>
+					<p style="text-align: left;">Archlinux Trusted User</p>
+				</section>
+
+                <section>
+                    <h2>Credits</h2>
+                    <ul>
+                        <li><small><span class="emphasize">Satellite Dish</span> http://metro.co.uk/2015/01/21/alien-radio-signal-is-captured-by-radio-dishes-for-the-first-time-5030142/</small></li>
+                        <li><small><span class="emphasize">Unix Signals</span> http://en.wikipedia.org/wiki/Unix_signal</small></li>
+                        <li><small><span class="emphasize">Wave</span> http://galleryhip.com/music-sound-waves-3d.html</small></li>
+                        <li><small><span class="emphasize">YEAR_0</span> http://www.worldpressphoto.org/awards/2014/contemporary-issues/john-stanmeyer</small></li>
+                        <li><small><span class="emphasize">orion-eft-1-flight-reentry1</span> http://www.nasa.gov/content/apollo-10-was-moon-landing-rehearsal-eft-1-preps-for-trips-beyond/</small></li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2>References</h2>
+                    <ul>
+                        <li><small><span class="emphasize">Signaling PHP</span> https://leanpub.com/signalingphp</small></li>
+                        <li><small><span class="emphasize">declare</span> http://php.net/manual/en/control-structures.declare.php</small></li>
+                        <li><small><span class="emphasize">pcntl_signal_dispatch</span> http://php.net/manual/en/function.pcntl-signal-dispatch.php</small></li>
+                        <li><small><span class="emphasize">pcntl_signal</span> http://php.net/manual/en/function.pcntl-signal.php</small></li>
+                        <li><small><span class="emphasize">pcntl_alarm</span> http://php.net/manual/en/function.pcntl-alarm.php</small></li>
+                        <li><small><span class="emphasize">posix_kill</span> http://php.net/manual/en/function.posix-kill.php</small></li>
+                        <li><small><span class="emphasize">pcntl_sigprocmask</span> http://php.net/manual/en/function.pcntl-sigprocmask.php</small></li>
+                        <li><small><span class="emphasize">pcntl_sigwaitinfo</span> http://php.net/manual/en/function.pcntl-sigwaitinfo.php</small></li>
+                        <li><small><span class="emphasize">pcntl_sigtimedwait</span> http://php.net/manual/en/function.pcntl-sigtimedwait.php</small></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Samples</h2>
+                    <ul>
+                        <li><a href="https://github.com/BlackIkeEagle/handling-signals-in-php-samples">handling signals in php samples</a></li>
+                    </ul>
+                </section>
+			</div>
+
+		</div>
+
+        <script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
