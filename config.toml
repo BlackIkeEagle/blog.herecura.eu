@@ -36,3 +36,8 @@ theme = "hyde"
     weight = -110
     identifier = "Miljar"
     url = "https://miljar.github.io"
+[[menu.blogroll]]
+    name = "Mattias Geniar"
+    weight = -100
+    identifier = "Mattias Geniar"
+    url = "https://ma.ttias.be/blog/"
