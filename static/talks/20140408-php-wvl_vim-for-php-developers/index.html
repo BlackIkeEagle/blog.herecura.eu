@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Vim for PHP Developers</title>
+
+		<meta name="description" content="Why Vim is relevant for PHP developers">
+		<meta name="author" content="Ike Devolder">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Vim for PHP Developers</h1>
+					<p>
+						Why on earth would any sane person use Vim for PHP development ?
+						Is it still relevant in the days of full blown IDE's ?
+					</p>
+					<img src="assets/vim-logo.png" alt="Vim logo" />
+				</section>
+
+				<section>
+					<h2>Ike Devolder</h2>
+					<p>@BlackIkeEagle</p>
+					<p>Senior Webdeveloper - Studio Emma</p>
+					<p>Archlinux Trusted User</p>
+					<p>Vim user :-)</p>
+				</section>
+
+				<section>
+					<h2>The Goal of this presentation</h2>
+					<ul>
+						<li>Touch some basics</li>
+						<li>Show some PHP specific things</li>
+						<li>Inspire you to research more about Vim</li>
+					</ul>
+				</section>
+
+				<section>
+					<img src="assets/0xbabaf000l.png" alt="Vim comic" />
+				</section>
+
+				<section>
+					<h2>What is Vim ?</h2>
+					<blockquote cite="http://www.vim.org/about.php">
+						&ldquo;Vim is a highly configurable text editor built to enable efficient text editing. It is an improved version of the vi editor distributed with most UNIX systems.&rdquo;
+					</blockquote>
+
+					<blockquote cite="http://www.vim.org/about.php">
+						&ldquo;Vim is often called a "programmer's editor," and so useful for programming that many consider it an entire IDE. It's not just for programmers, though. Vim is perfect for all kinds of text editing, from composing email to editing configuration files.&rdquo;
+					</blockquote>
+				</section>
+
+				<section>
+					<h2>What is Vim NOT ?</h2>
+					<blockquote cite="http://www.vim.org/about.php">
+						&ldquo;Vim isn't an editor designed to hold its users' hands. It is a tool, the use of which must be learned.&rdquo;
+					</blockquote>
+
+					<blockquote cite="http://www.vim.org/about.php">
+						&ldquo;Vim isn't a word processor. Although it can display text with various forms of highlighting and formatting, it isn't there to provide WYSIWYG editing of typeset documents. (It is great for editing TeX, though.)&rdquo;
+					</blockquote>
+
+					<blockquote cite="Ike">
+						&ldquo;Vim isn't a desktop environment. If you want integrated twitter, email, webbrowser, ircclient, ... use emacs.&rdquo;
+					</blockquote>
+				</section>
+
+				<section>
+					<h2>Why Vim for PHP development</h2>
+					<p>Vim has everything (or almost) a PHP developer needs.</p>
+					<p>We just need to unlock or find the &ldquo;right&rdquo; feature.</p>
+					<p>Once you know it it's FAST!</p>
+				</section>
+
+				<section>
+					<section>
+						<h2>Modal editor</h2>
+						<p>Wtf, modal editor?</p>
+						<p>A modal editor has different modes of operation.</p>
+						<ul class="fragment">
+							<li>Normal mode</li>
+							<li>Insert mode</li>
+							<li>Visual mode</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Normal mode</h2>
+						<p>In this mode everything you &ldquo;type&rdquo; is interpreted as a command you give.</p>
+					</section>
+
+					<section>
+						<h2>Insert mode</h2>
+						<p>This is what you are used to, start typing and you are adding text</p>
+						<ul>
+							<li>&ldquo;i&rdquo; => insert mode at current position</li>
+							<li>&ldquo;I&rdquo; => insert mode at beginning of line</li>
+							<li>&ldquo;a&rdquo; => insert mode at next position (appending)</li>
+							<li>&ldquo;A&rdquo; => insert mode at end of line (appending)</li>
+							<li>&ldquo;o&rdquo; => insert mode open new line after current line</li>
+							<li>&ldquo;O&rdquo; => insert mode open new line before current line</li>
+							<li>&ldquo;r&rdquo; => insert mode replace current character</li>
+							<li>&ldquo;R&rdquo; => insert mode start replace from current character</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Visual mode</h2>
+						<p>This mode could be compared to selecting some text</p>
+						<ul>
+							<li>&ldquo;v&rdquo; => highlight continuous text from current position</li>
+							<li>&ldquo;V&rdquo; => highlight complete lines</li>
+							<li>&ldquo;ctrl + v&rdquo; => highlight block mode (columns)</li>
+						</ul>
+						<p> </p>
+						<p><small>To define a visual highlight you can use all movement keys</small></p>
+					</section>
+
+					<section>
+						<h2>Modes demo</h2>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Moving around without mouse and without arrow keys</h2>
+						<p>If you really want you can move around with your mouse and with your arrow keys</p>
+					</section>
+
+					<section>
+						<h2>Basic movement</h2>
+						<img src="assets/adm-3a-hjkl-keyboard.jpg" alt="vim-hjkl">
+					</section>
+
+					<section>
+						<h2>Faster movement</h2>
+						<ul>
+							<li>by word
+								<ul>
+									<li>&ldquo;w,e&rdquo; => forward beginning or end of word</li>
+									<li>&ldquo;W,E&rdquo; => forward beginning or end of word (context)</li>
+									<li>&ldquo;b,ge&rdquo; => backward beginning or end of word</li>
+								</ul>
+							</li>
+							<li>line
+								<ul>
+									<li>&ldquo;0&rdquo; => beginning of line</li>
+									<li>&ldquo;^&rdquo; => beginning of line (non whitespace char)</li>
+									<li>&ldquo;$&rdquo; => end of line</li>
+								</ul>
+							</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Faster movement</h2>
+						<ul>
+							<li>&ldquo;gg&rdquo; => beginning of document</li>
+							<li>&ldquo;G&rdquo; => end of document</li>
+							<li>&ldquo;{N}G&rdquo; => goto linenumber {N}</li>
+							<li>&ldquo;ctrl + f&rdquo; => 'scroll' page forward</li>
+							<li>&ldquo;ctrl + b&rdquo; => 'scroll' page backward</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Search movement</h2>
+						<ul>
+							<li>&ldquo;/{search}&rdquo; => search forward for {search}</li>
+							<li>&ldquo;?{search}&rdquo; => search backard for {search}</li>
+							<li>&ldquo;f{char}&rdquo; => goto first occurence of {char} on this line</li>
+							<li>&ldquo;F{char}&rdquo; => backward of &ldquo;f&rdquo;</li>
+							<li>&ldquo;t{char}&rdquo; => goto char before first occurence of {char} on line</li>
+							<li>&ldquo;T{char}&rdquo; => reverse of &ldquo;t&rdquo;</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Movement demo</h2>
+					</section>
+
+					<section>
+						<img src="assets/vim-shortcuts.png" alt="vim movement cheat sheet" />
+						<p><small><a href="https://bitbucket.org/tednaleid/vim-shortcut-wallpaper">https://bitbucket.org/tednaleid/vim-shortcut-wallpaper</a></small></p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Commands</h2>
+						<p>Wtf ? Commands, this is just a text editor, why don't you just let me type in some text</p>
+					</section>
+
+					<section>
+						<h2>Common commands</h2>
+						<ul>
+							<li>Quit: &ldquo;:q&rdquo;</li>
+							<li>Quit and I don't care about the changes: &ldquo;:q!&rdquo;</li>
+							<li>Quit everything: &ldquo;:qa&rdquo;</li>
+							<li>Write: &ldquo;:w&rdquo;</li>
+							<li>Write and quit: &ldquo;:wq&rdquo;</li>
+						</ul>
+						<p><small>&ldquo;:help editing.txt&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>Copy / paste</h2>
+						<ul>
+							<li>Copy: &ldquo;y&rdquo; (called yank)</li>
+							<li>Cut: &ldquo;d&rdquo; (delete)</li>
+							<li>Cut Characters: &ldquo;x&rdquo; (cut after); &ldquo;X&rdquo; (cut before)</li>
+							<li>Paste: &ldquo;p&rdquo;</li>
+						</ul>
+						<p><small>&ldquo;:help change.txt&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>Text Manipulation</h2>
+						<ul>
+							<li>Replace current selection: &ldquo;r&rdquo;</li>
+							<li>Replace from current postion: &ldquo;R&rdquo;</li>
+							<li>Substitute (search and replace):<br />&ldquo;:s/{pattern}/{substitution}/{flags}&rdquo;</li>
+							<li>Flip the case of character: &ldquo;~&rdquo;</li>
+							<li>Increment number: &ldquo;ctrl + a&rdquo;</li>
+							<li>Decrement number: &ldquo;ctrl + x&rdquo;</li>
+						</ul>
+						<p><small>&ldquo;:help change.txt&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>Undo / Redo</h2>
+						<ul>
+							<li>Undo: &ldquo;u&rdquo;</li>
+							<li>Undo last change on this line: &ldquo;U&rdquo;</li>
+							<li>Redo: &ldquo;ctrl + r&rdquo;</li>
+						</ul>
+						<p><small>&ldquo;:help undo.txt&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>Quantifiers</h2>
+						<p>Quantifiers can be used to 'extend' the reach of a command</p>
+						<ul>
+							<li>Move to the 5th word: &ldquo;5w&rdquo;</li>
+							<li>Yank the next 3 lines: &ldquo;3yy&rdquo;</li>
+							<li>Delete up til the end of the 3rd word form here: &ldquo;d3e&rdquo;</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Ranges</h2>
+						<p>Most commands support ranges, ranges are defined like<br />&ldquo;:{start},{end} {command}&rdquo;</p>
+						<ul>
+							<li>Visual selection: &ldquo;:'&lt;,'&gt;&rdquo;</li>
+							<li>All lines in file: &ldquo;:%&rdquo;</li>
+							<li>From line 4 to 10; &ldquo;:4,10&rdquo;</li>
+						</ul>
+						<p><small>&ldquo;:help range&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>Formatting text</h2>
+						<ul>
+							<li>Center align: &ldquo;:ce {width}&rdquo;</li>
+							<li>Right align: &ldquo;:ri {width}&rdquo;</li>
+							<li>Left align: &ldquo;:le {indent}&rdquo;</li>
+							<li>Format paragraph: &ldquo;gqip&rdquo;</li>
+							<li>Format current selection: &ldquo;gq&rdquo;</li>
+						</ul>
+						<p><small>&ldquo;:help formatting&rdquo;</small>&nbsp;<small>&ldquo;:help text-objects&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>Commands demo</h2>
+					</section>
+				</section>
+
+				<section>
+					<h2>Still no word about PHP ?!?</h2>
+					<img src="assets/boring.jpg" alt="boring" />
+				</section>
+
+				<section>
+					<h2>No PHP yet !</h2>
+				</section>
+
+				<section>
+					<section>
+						<h2>Stuff for coders, what do we want?</h2>
+						<ul>
+							<li class="fragment">syntax highlighting</li>
+							<li class="fragment">completion</li>
+							<li class="fragment">search in files</li>
+							<li class="fragment">syntax errors</li>
+							<li class="fragment">project based configuration</li>
+							<li class="fragment">file/folder navigation</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Many of the things we need are available out of the box</h2>
+					</section>
+
+					<section>
+						<h2>syntax highlighting</h2>
+						<p>If you are getting on a ubuntu server, first action:<br />apt-get install vim</p>
+						<p>In most linux distributions vim comes with syntax highlighting enabled by default.</p>
+						<p>In many distributions the default vim installed is a vi compatbile tiny version, install the full version!</p>
+					</section>
+
+					<section>
+						<h2>completion</h2>
+						<ul>
+							<li>&ldquo;ctrl-x ctrl-f&rdquo; file names</li>
+							<li>&ldquo;ctrl-x ctrl-l&rdquo; whole lines</li>
+							<li>&ldquo;ctrl-x ctrl-i&rdquo; current and included files</li>
+							<li>&ldquo;ctrl-x ctrl-k&rdquo; words from a dictionary</li>
+							<li>&ldquo;ctrl-x ctrl-t&rdquo; words from a thesaurus</li>
+							<li>&ldquo;ctrl-x ctrl-]&rdquo; tags</li>
+							<li>&ldquo;ctrl-x ctrl-v&rdquo; Vim command line</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>search in files</h2>
+						<ul>
+							<li>&ldquo;:grep {search} {infiles}&rdquo; </li>
+							<li>&ldquo;:lgrep {search} {infiles}&rdquo;</li>
+							<li>&ldquo;:vimgrep {search} {infiles}&rdquo;</li>
+							<li>&ldquo;:lvimgrep {search} {infiles}&rdquo;</li>
+						</ul>
+						<ul>
+							<li>&ldquo;:cnext&rdquo; goto the next result</li>
+							<li>&ldquo;:cprevious&rdquo; goto the previous result</li>
+						</ul>
+						<p>The default search functions in Vim are fairly hard to use</p>
+					</section>
+
+					<section>
+						<h2>syntax errors</h2>
+						<p>
+							You could manually abuse the makeprg setting in vim and set it to &ldquo;php -l %&rdquo; but when using PHP, html, javascript, ...
+							you might want syntax errors for all of those languages.
+						</p>
+					</section>
+
+					<section>
+						<h2>project based configuration</h2>
+						<p>We must explicitly add a configuration option to allow vim to load a .vimrc file from the directory you are starting vim from.<p>
+						<p><small>&ldquo;:help exrc&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>file/folder navigation</h2>
+						<p>There is by default a file navigator built in in vim called netrw, if you have to use it, it does the job fine, but it is not really user frienly.</p>
+						<p>We can also easily navigate our files if we use tags.</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>OMG Vim is HARD!</h2>
+					<img src="assets/text_editors.jpg" alt="text editors" />
+				</section>
+
+				<section>
+					<section>
+						<h2>Configure Vim</h2>
+						<p>The configuration will be done in &ldquo;~/.vimrc&rdquo; and addidional plugins to make our lives easier go into &ldquo;~/.vim&rdquo;</p>
+					</section>
+
+					<section>
+						<h2>Choose mode</h2>
+						<p>Vim has a vi compatible mode or you can choose to use the no compatible mode to be able to use all Vim specific features</p>
+					</section>
+
+					<section>
+						<h2>Backup rules</h2>
+						<p>Vim creates a backup of every file you edit, it also keeps a &ldquo;swap&rdquo; file by default. Vim also keeps views around but I personally never saw one saved to disk.</p>
+						<p>Vim can also persist undo information.</p>
+						<p>By default all these files are stored next to the file you are editing, this can pollute your source tree.</p>
+					</section>
+
+					<section>
+						<h2>Filetype</h2>
+						<p>We have to enable syntax highlighting and filetype detection, most distributions already enable this by default.</p>
+					</section>
+
+					<section>
+						<h2>Tabstop</h2>
+						<p>Tabstop is going to define how the syntax indentation and tab key will behave.</p>
+					</section>
+
+					<section>
+						<h2>Linenumbers</h2>
+						<p>When we are programming knowing what line we are on</p>
+					</section>
+
+					<section>
+						<h2>Colorscheme</h2>
+						<p>And ofcourse we 'never' use the default colorscheme since we all think thatone is not good enough for us</p>
+					</section>
+
+					<section>
+						<h2>Many more configuration possibilities</h2>
+						<p>The ones mentioned before are &ldquo;most&rdquo; important to do our job</p>
+					</section>
+
+					<section>
+						<h2>Demo configuration</h2>
+						<p><a href="https://github.com/BlackIkeEagle/vim-configuration-in-steps">vim configuration in steps</a></p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Plugins will help us</h2>
+						<p>What follows are a list of plugins I use, that does in no way mean those are the best. When you use a plugin make sure you feel an improvement in your workflow.</p>
+					</section>
+
+					<section>
+						<h2>(C)tags</h2>
+						<p>(C)tags is not really a plugin, it is a built in feature of Vim. This built in feature can already start making our lives much easier.</p>
+						<p>There are plugins to generate your tagfiles on save, or on quit. I personally generate them whenever I see fit.</p>
+						<ul>
+							<li>Jump to tag under cursor: &ldquo;ctrl+]&rdquo;</li>
+							<li>Go back to originating file: &ldquo;ctrl+t&rdquo;</li>
+						</ul>
+						<p><small>&ldquo;:help tagsrch.txt&rdquo;</small></p>
+					</section>
+
+					<section>
+						<h2>Plugin manager</h2>
+						<p>In the old days you usually installed plugins by extracting a zipfile in your &ldquo;~/.vim&rdquo; folder. Luckily, these days are over, now we have several plugins ;) that manage our plugins.</p>
+						<p>Some &ldquo;plugin managers&rdquo;:</p>
+						<ul class="fragment">
+							<li><a href="https://github.com/tpope/vim-pathogen">pathogen</a> is very simple by concept and use</li>
+							<li><a href="https://github.com/gmarik/Vundle.vim">Vundle</a> is using a config file and installs plugins automatically</li>
+							<li><a href="https://github.com/Shougo/neobundle.vim">NeoBundle</a> is based on Vundle, but adds more features</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/scrooloose/nerdtree">The NERD Tree</a></h2>
+						<p>The NERD Tree is a tree like file explorer for vim</p>
+						<img src="assets/nerdtree.png" alt="nerdtree" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/kien/ctrlp.vim">ctrlp.vim</a></h2>
+						<p>In short this is a fuzzy typed fast filefinder</p>
+						<img src="assets/ctrlp.png" alt="ctrlp" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/mileszs/ack.vim">ack.vim</a></h2>
+						<p>As you could guess the plugin uses the ack command to search in code files.</p>
+						<img src="assets/ack.png" alt="ack" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/tyok/nerdtree-ack">NERDtree + Ack.vim</a></h2>
+						<p>NERDTree Ack is an extension for nerdtree which adds a few menu items to search with ack</p>
+						<img src="assets/nerdtreeack.png" alt="nerdtreeack" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/joonty/vim-sauce">Sauce for Vim</a></h2>
+						<p>Sauce is a &ldquo;project&rdquo; like plugin, it creates an extra project specific vimrc file where you can keep the location of the project, maybe indenting options, ...</p>
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/roblillack/vim-bufferlist">VIM bufferlist</a></h2>
+						<p>VIM bufferlist gives you a list of open buffers (files).</p>
+						<img src="assets/bufferlist.png" alt="bufferlist" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/ervandew/supertab">supertab</a></h2>
+						<p>Supertab is a plugin that helps you to use completion in insert mode, when you press <tab> you get a list of possible completions.</p>
+						<img src="assets/supertab.png" alt="supertab" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/scrooloose/syntastic">Syntastic</a></h2>
+						<p>Syntastic is a syntax checker plugin, it will run a syntax check on the open file.</p>
+						<img src="assets/syntastic.png" alt="syntastic" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/majutsushi/tagbar">tagbar</a></h2>
+						<p>Tagbar displays a summary of your class or file. It lists classes, paramters and methods.</p>
+						<img src="assets/tagbar.png" alt="tagbar" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/scrooloose/nerdcommenter">NERDcommenter</a></h2>
+						<p>NERDcommenter helps you to quickly add comments to a line or multiple lines.</p>
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/sumpygump/php-documentor-vim">PHP Documentor for Vim</a></h2>
+						<p>PHP Documentor for Vim is a plugin to easily create docblocks on your classes, parameters and methods.</p>
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/EvanDotPro/php_getset.vim">php_getset</a></h2>
+						<p>php_getset creates getter and setter methods from the paramters selected in your class.</p>
+						<img src="assets/php_getset.png" alt="php_getset" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/tpope/vim-fugitive">vim-fugitive</a></h2>
+						<p>Fugitive is a git wrapper for vim, you can run practically every git command from fugitive.</p>
+						<img src="assets/fugitive.png" alt="fugitive" />
+					</section>
+
+					<section>
+						<h2><a href="https://github.com/joonty/vdebug">vdebug</a></h2>
+						<p>Vdebug is a debugger for Vim. Every debugger speaking DBGP protocol can be used. Xdebug speaks DBGP ;)</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Questions ?</h2>
+				</section>
+
+				<section>
+					<h2>Usefull resources</h2>
+					<ul>
+						<li><a href="http://www.vim.org/">http://www.vim.org/</a></li>
+						<li><a href="http://vim.wikia.com/wiki/Vim_Tips_Wiki">http://vim.wikia.com/wiki/Vim_Tips_Wiki</a></li>
+						<li><a href="http://vimcasts.org/">http://vimcasts.org/</a></li>
+						<li><a href="my vimfiles: https://github.com/BlackIkeEagle/vimfiles">my vimfiles: https://github.com/BlackIkeEagle/vimfiles</a></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Thanks.</h2>
+					<p><a href="https://joind.in/10940">https://joind.in/10940</a></p>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
