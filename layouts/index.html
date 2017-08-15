@@ -7,7 +7,7 @@
     <div class="posts">
 
     {{ range .Data.Pages }}
-      {{ if ne .Type "page" }}
+      {{ if and (ne .Type "page") (or (and (eq .Type "talk") (gt now .Date)) (ne .Type "talk")) }}
       <div class="post">
         <h1 class="post-title">
           <span class="type">{{ .Type }}</span>
