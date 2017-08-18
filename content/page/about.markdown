@@ -12,8 +12,8 @@ an environment practically the same as production.
 
 In his free time the biggest interest is Metal music and
 [Archlinux](https://www.archlinux.org/). Being a [Trusted
-User](https://www.archlinux.org/trustedusers/#idevolder) at Archlinux means
-following up on new software is part of the 'free' time :).
+User](https://www.archlinux.org/people/trusted-users/#idevolder) at Archlinux
+means following up on new software is part of the 'free' time :).
 
 If you want to find more of Ike's hobby projects, check out his
 [github](https://github.com/BlackIkeEagle).
