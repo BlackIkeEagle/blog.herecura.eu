@@ -6,6 +6,13 @@
   font-size: 2rem;
 }
 
+@media (max-width: 48em) {
+  .sidebar-about img {
+    display: block;
+    margin: 0 auto;
+  }
+}
+
 .post-title .type {
   color: #b0b0b0;
   background-color: #202020;
