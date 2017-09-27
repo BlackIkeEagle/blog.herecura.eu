@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+        <title>Automatically deploying Magento 2 without losing sleep</title>
+
+		<meta name="description" content="Automatically deploying Magento 2 without losing sleep">
+		<meta name="author" content="Ike Devolder">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+        <style>
+            body { background: #253238; background-color: #253238 }
+        </style>
+
+        <!-- vim -->
+        <style type="text/css">
+        <!--
+        pre.vimCodeElement { font-family: monospace; color: #657b83; background-color: #fdf6e3; border: 0; box-shadow: none; }
+        .Statement { color: #719e07; }
+        .LineNr { color: #93a1a1; background-color: #eee8d5; padding-bottom: 1px; }
+        .PreProc { color: #cb4b16; }
+        .Constant { color: #2aa198; }
+        .Special { color: #dc322f; }
+        .Identifier { color: #268bd2; }
+        .Comment { color: #93a1a1; font-style: italic; }
+        -->
+        </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section data-background="assets/KUKA_Industrial_Robots_IR.jpg">
+					<h2>Automatically deploying</h2>
+                    <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/magento2-logo.png" />
+                    <h2>without losing sleep</h2>
+				</section>
+
+                <section data-background="assets/KUKA_Industrial_Robots_IR-darker.jpg">
+                    <section>
+                        <h2>Ike Devolder</h2>
+                        <img style="border: 0; border-radius: 20%;" src="assets/blackikeeagle.jpg" />
+                        <br />
+                        <a href="https://twitter.com/BlackIkeEagle">@BlackIkeEagle</a>
+                        <p>DevOps / developer @ <a href="https://www.studioemma.com">Studio Emma</a></p>
+                    </section>
+
+                    <section>
+                        <h2>Studio Emma</h2>
+                        <img style="border: 0; border-radius: 20%;" src="assets/se-slide-logo.png" />
+                        <br />
+                        <a href="https://twitter.com/studioemma">@studioemma</a>
+                        <p>Magento Silver Solution Partner</p>
+                        <p>Pimcore Gold Solution Partner</p>
+                    </section>
+
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li>our way of hosting</li>
+                            <li>tools used</li>
+                            <li>the setup</li>
+                            <li>the flow</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>our way of hosting is for context</li>
+                                <li>tools used</li>
+                                <li>setup of our system</li>
+                                <li>how it flows from a technical point</li>
+                            </ul>
+                        </aside>
+                    </section>
+                </section>
+
+                <section data-background="assets/KUKA_Industrial_Robots_IR-darker.jpg" data-transition="none">
+                    <section data-transition="fade">
+                        <h2>topics</h2>
+                        <ul>
+                            <li style="color: #F80"><strong>our way of hosting</strong></li>
+                            <li>tools used</li>
+                            <li>the setup</li>
+                            <li>the flow</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/server-37258_640.png" />
+                        <aside class="notes">
+                            <p>our way of hosting</p>
+                            <ul>
+                                <li>host with partner</li>
+                                <li>system administration of our own</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/ubuntu-logo32.png" />
+                        <aside class="notes">
+                            <p>hosted on ubuntu</p>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h1># root</h1>
+                        <aside class="notes">
+                            <p>hosted on ubuntu</p>
+                            <ul>
+                                <li>full control</li>
+                                <li>add whatever tools we need</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_144203.png" />
+                        <aside class="notes">
+                            <p>configuration by us for us</p>
+                        </aside>
+                    </section>
+                </section>
+
+                <section data-background="assets/KUKA_Industrial_Robots_IR-darker.jpg">
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li>our way of hosting</li>
+                            <li style="color: #F80"><strong>tools used</strong></li>
+                            <li>the setup</li>
+                            <li>the flow</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <img style="border: 0; border-radius: 30px;" src="assets/apache-ant.jpg" />
+                        <aside class="notes">
+                            <p>ant</p>
+                            <ul>
+                                <li>helpers for develpment</li>
+                                <li>unittesting</li>
+                                <li>packaging</li>
+                                <li>deployment</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img style="border: 0; border-radius: 30px;" src="assets/shell.jpg" />
+                        <aside class="notes">
+                            <p>shell</p>
+                            <ul>
+                                <li>work around issues</li>
+                                <li>reduce number of ssh connections on deploy</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img style="border: 0; border-radius: 30px;" src="assets/atlassian-bamboo.jpg" />
+                        <aside class="notes">
+                            <p>bamboo</p>
+                            <ul>
+                                <li>glues everything together</li>
+                                <li>triggered by git push</li>
+                                <li>unittesting -> packaging -> deployment</li>
+                            </ul>
+                            <p>by ant targets</p>
+                        </aside>
+                    </section>
+                </section>
+
+                <section data-background="assets/KUKA_Industrial_Robots_IR-darker.jpg">
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li>our way of hosting</li>
+                            <li>tools used</li>
+                            <li style="color: #F80"><strong>the setup</strong></li>
+                            <li>the flow</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>add build files to project</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_152945.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>build.exclude = avoid adding stupid files to package artifact</li>
+                                <li>build.xml = definition of targets</li>
+                                <li>deploy.sh = run tasks after code is placed on server</li>
+                                <li>package.properties = specific configuration for packaging</li>
+                                <li>project.properties = global project config</li>
+                                <li>static-conten.sh = magic trick to avoid issues with static files</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>push to a repo</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_153839.png" />
+                    </section>
+
+                    <section>
+                        <h2>create unittest plan</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_154311.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>unittest on every push</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>create package plan</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_155743.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>package plan only on successfull unittest</li>
+                                <li>requires tag</li>
+                                <li>will not build same tag twice</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>create tag and see it build</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_162304.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>will not build same tag twice</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>victory package ready</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_164423.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>package will be available for deploy now</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>create a deploy project</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170925_165542.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>has default setup</li>
+                                <li>setup variables for the specific project</li>
+                                <li>add trigger to automatically build</li>
+                                <li>add notifications in chat</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>see your deploy running after tagging</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170926_172322.png" />
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170926_172357.png" />
+                    </section>
+
+                    <section>
+                        <h2>with nice notifications</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170927_084359.png" />
+                    </section>
+                </section>
+
+                <section data-background="assets/KUKA_Industrial_Robots_IR-darker.jpg">
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li>our way of hosting</li>
+                            <li>tools used</li>
+                            <li>the setup</li>
+                            <li style="color: #F80"><strong>the flow</strong></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>preparation on the build server</h2>
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>composer install --no-dev --opimize-autoloader</li>
+                            <li>clean install magento</li>
+                            <li>magento cache:flush</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>no dev deps and optimized autoloader</li>
+                                <li>clean install magento to reduce transfer between prod and packaging</li>
+                                <li>flush cache to avoid errors later</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>replace tables with data from target setup
+                                <ul>
+                                    <li>core_config_data</li>
+                                    <li>translation</li>
+                                    <li>store_website</li>
+                                    <li>store_group</li>
+                                    <li>store</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>core_config_data = magento settings</li>
+                                <li>translation = things added by inline translation</li>
+                                <li>store_website, store_group, store = store configuration</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>magento setup:upgrade</li>
+                            <li>magento setup:static-content:deploy</li>
+                            <li>magento setup:di:compile</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>update th esetup</li>
+                                <li>static contet deploy = prepare static content, js, css for defined languages</li>
+                                <li>di compile = prepare di for this setup</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>package is a zip file</h2>
+                        <p>regular zipfile *with* symlinks</p>
+                        <aside class="notes">
+                            <ul>
+                                <li>we used tar</li>
+                                <li>had permission issues with tar (acl related)</li>
+                                <li>zip can have symlinks and zero permission issues :)</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>server folder structure</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170926_174301.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>mage2cron = added in crontab</li>
+                                <li>conf cronroot = set location of bin/magento</li>
+                                <li>con nginx.conf = set docroot for nginx</li>
+                                <li>logs = nginx logs</li>
+                                <li>shared env.php = prod env config</li>
+                                <li>shared media = prod media</li>
+                                <li>versions = available versions</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>actions done on the server</h2>
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>part of the folder sturcture is created</li>
+                            <li>symlink env.php</li>
+                            <li>symlink media</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>harden permissions</li>
+                            <li>magento setup:upgrade --keep-generated</li>
+                            <li>magento indexer:reindex</li>
+                            <li>magento setup:cron:run</li>
+                            <li>magento cron:run</li>
+                            <li>magento cache:flush</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>permissions is a custom script hardening the filesystem permissions of the magento install</li>
+                                <li>we already generated di so keep it</li>
+                                <li>cache flush to destroy stale data</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>on success the document root configuration is changed</h2>
+                    </section>
+
+                    <section>
+                        <h2>primo victoria</h2>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/Screenshot_20170926_175209.png" />
+                    </section>
+                </section>
+
+                <section data-background="assets/KUKA_Industrial_Robots_IR-darker.jpg">
+                    <section data-transition="none">
+                        <div style="width: 50%; display: inline-block; margin-right: 2%; vertical-align: top;">
+                            <h2 style="text-align: left">Questions?</h2>
+                            <p style="text-align: left;"><a href="https://joind.in/talk/0191b">https://joind.in/talk/0191b</a></p>
+                            <h2 style="text-align: left">Ike Devolder</h2>
+                        </div>
+                        <div style="width: 46%; display: inline-block;">
+                            <a href="https://joind.in/talk/..."><img src="assets/joindinqr.png" alt="joindin qr" style="width: 220px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                        <p></p>
+                        <div style="vertical-align: top;">
+                            <p style="text-align: left;"><a href="https://twitter.com/BlackIkeEagle">@BlackIkeEagle</a></p>
+                            <p style="text-align: left;">DevOps / developer @ <a href="https://www.studioemma.com">Studio Emma</a></p>
+                            <p style="text-align: left;"><a href="http://www.php-wvl.be">PHP-WVL</a> / <a href="https://dockerwest.github.io">Docker West</a> / <a href="https://www.archlinux.org">Arch Linux</a> Trusted User</p>
+                        </div>
+                        <div>
+                            <a href="https://www.studioemma.com"><img src="assets/se-logo.png" alt="studioemma" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="http://www.php-wvl.be"><img src="assets/php-wvl-logo.png" alt="php-wvl" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="https://dockerwest.github.io"><img src="assets/docker-west.png" alt="docker west" style="width: 80px; border: 0; background: white; box-shadow: 0 0; border-radius: 5%;" /></a>&nbsp;
+                            <a href="https://www.archlinux.org"><img src="assets/Arch-linux-logo.png" alt="arch linux" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                    </section>
+
+                    <section data-transition="none">
+                        <div style="width: 50%; display: inline-block; margin-right: 2%; vertical-align: top;">
+                            <h2 style="text-align: left">Thanks.</h2>
+                            <p style="text-align: left;"><a href="https://joind.in/talk/0191b">https://joind.in/talk/0191b</a></p>
+                            <h2 style="text-align: left">Ike Devolder</h2>
+                        </div>
+                        <div style="width: 46%; display: inline-block;">
+                            <a href="https://joind.in/talk/..."><img src="assets/joindinqr.png" alt="joindin qr" style="width: 220px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                        <p></p>
+                        <div style="vertical-align: top;">
+                            <p style="text-align: left;"><a href="https://twitter.com/BlackIkeEagle">@BlackIkeEagle</a></p>
+                            <p style="text-align: left;">DevOps / developer @ <a href="https://www.studioemma.com">Studio Emma</a></p>
+                            <p style="text-align: left;"><a href="http://www.php-wvl.be">PHP-WVL</a> / <a href="https://dockerwest.github.io">Docker West</a> / <a href="https://www.archlinux.org">Arch Linux</a> Trusted User</p>
+                        </div>
+                        <div>
+                            <a href="https://www.studioemma.com"><img src="assets/se-logo.png" alt="studioemma" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="http://www.php-wvl.be"><img src="assets/php-wvl-logo.png" alt="php-wvl" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="https://dockerwest.github.io"><img src="assets/docker-west.png" alt="docker west" style="width: 80px; border: 0; background: white; box-shadow: 0 0; border-radius: 5%;" /></a>&nbsp;
+                            <a href="https://www.archlinux.org"><img src="assets/Arch-linux-logo.png" alt="arch linux" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                    </section>
+
+                    <section data-transition="none">
+                        <h2>Image credits</h2>
+                        <ul>
+                            <li><small>https://commons.wikimedia.org/wiki/File:KUKA_Industrial_Robots_IR.jpg</small></li>
+                            <li><small>https://pixabay.com/en/photos/hosting/</small></li>
+                            <li><small>https://design.ubuntu.com/brand/ubuntu-logo</small></li>
+                            <li><small>https://commons.wikimedia.org/wiki/File:Apache-Ant-logo.svg</small></li>
+                            <li><small>https://github.com/odb/official-bash-logo</small></li>
+                            <li><small>https://www.atlassian.com/software/bamboo</small></li>
+                        </ul>
+                </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: true,
+				history: true,
+				center: true,
+
+                width: "90%",
+                height: "90%",
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: 'slide',
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
