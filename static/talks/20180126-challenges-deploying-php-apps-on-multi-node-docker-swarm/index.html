@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+        <title>Challenges deploying PHP apps on multi node docker swarm</title>
+
+		<meta name="description" content="Challenges deploying PHP apps on multi node docker swarm">
+		<meta name="author" content="Ike Devolder">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+        <style>
+            body { background: #253238; background-color: #253238 }
+            img { border: 0; border-radius: 0.2em; }
+        </style>
+
+        <!-- vim -->
+        <style type="text/css">
+        <!--
+        pre.vimCodeElement { font-family: monospace; color: #657b83; background-color: #fdf6e3; border: 0; box-shadow: none; }
+        .Statement { color: #719e07; }
+        .LineNr { color: #93a1a1; background-color: #eee8d5; padding-bottom: 1px; }
+        .PreProc { color: #cb4b16; }
+        .Constant { color: #2aa198; }
+        .Special { color: #dc322f; }
+        .Identifier { color: #268bd2; }
+        .Comment { color: #93a1a1; font-style: italic; }
+        -->
+        </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section data-background="assets/Fish_Final.jpg">
+                    <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/docker-swarm-titleslide.png" />
+				</section>
+
+                <section data-background="assets/Fish_Final.jpg">
+                    <section>
+                        <h2>Ike Devolder</h2>
+                        <img style="border: 0; border-radius: 20%;" src="assets/blackikeeagle.jpg" />
+                        <br />
+                        <a href="https://twitter.com/BlackIkeEagle">@BlackIkeEagle</a>
+                        <p>DevOps / developer @ <a href="https://www.studioemma.com">Studio Emma</a></p>
+                    </section>
+
+                    <section>
+                        <h2>Studio Emma</h2>
+                        <img style="border: 0; border-radius: 20%;" src="assets/se-slide-logo.png" />
+                        <br />
+                        <a href="https://twitter.com/studioemma">@studioemma</a>
+                        <p>Magento Silver Solution Partner</p>
+                        <p>Pimcore Gold Solution Partner</p>
+                    </section>
+
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li class="fragment">our requirements</li>
+                            <li class="fragment">some history</li>
+                            <li class="fragment">docker swarm</li>
+                            <li class="fragment">demo time</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section data-background="assets/Fish_Final.jpg">
+                    <section data-background-color="#F40">
+                        <h2>and then there was</h2>
+                    </section>
+
+                    <section>
+                        <img src="assets/dockercon-kubernetes.png" alt="dockercon kubernetes" />
+                    </section>
+
+                    <section>
+                        <img style="width: 80%" src="assets/oh-noo.gif" alt="oh noo" />
+                    </section>
+                </section>
+
+                <section data-background="assets/Fish_Final.jpg">
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li style="color: #F80"><strong>our requirements</strong></li>
+                            <li>some history</li>
+                            <li>docker swarm</li>
+                            <li>demo time</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <p>further improve software stack consistency</p>
+                        <p class="fragment">can be hosted by us</p>
+                        <p class="fragment">easy to manage</p>
+                        <p class="fragment">easy for deployment</p>
+                        <aside class="notes">
+                            <ul>
+                                <li>sometimes we are a version off and fail to discover issues with a specific php version for example</li>
+                                <li>90% of our client projects are hosted at a partner and managed by us</li>
+                                <li>easier and faster deploy is always good</li>
+                            </ul>
+                        </aside>
+                    </section>
+                </section>
+
+                <section data-background="assets/Fish_Final.jpg" >
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li>our requirements</li>
+                            <li style="color: #F80"><strong>some history</strong></li>
+                            <li>docker swarm</li>
+                            <li>demo time</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <pre style="background-color: black;">
+$ docker run -e MYSQL_ROOT_PASSWORD=toor -d \
+    --name mysql mysql:5.7
+$ docker run --link mysql -d \
+    --name my-phpapp myphpapp:latest
+$ docker run --link my-phpapp -d \
+    -p 80:80 \
+    --name my-nginx mynginx:latest
+                        </pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>docker managed by systemd</li>
+                                <li>linked manually by naming things manually</li>
+                                <li>error prone</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img src="assets/working-site.png" alt="great site" />
+                    </section>
+
+                    <section>
+                        <pre style="background-color: black;">
+$ uptime
+ 20:04:33 up 16 min,  8 users,  load average: 0,63, 0,46, 0,34
+                        </pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>Then you call your hoster</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img src="assets/panic-rebooted.gif" alt="rebooted" />
+                        <aside class="notes">
+                            <ul>
+                                <li>Oh no server was rebooted</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img src="assets/site-broken.png" alt="down" />
+                        <aside class="notes">
+                            <ul>
+                                <li>Site down :(</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img style="background: none !important; border: 0;" src="assets/fig.sh.png" alt="fig"/>
+                        <aside class="notes">
+                            <ul>
+                                <li>Yay, better management of connected containers</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img src="assets/fig-example-large.gif" alt="fix example"/>
+                        <aside class="notes">
+                            <ul>
+                                <li>Yay, better management of connected containers</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img style="background: none !important; border: 0; width: 50%;" src="assets/compose.png" alt="docker compose"/>
+                        <aside class="notes">
+                            <ul>
+                                <li>brought into docker and renamed to docker compose</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+<pre class='vimCodeElement'>
+<span class="LineNr"> 1 </span><span class="Identifier">version</span>: <span class="String">'3'</span>
+<span class="LineNr"> 2 </span><span class="Identifier">services</span>:
+<span class="LineNr"> 3 </span>  <span class="Identifier">redis</span>:
+<span class="LineNr"> 4 </span>    <span class="Identifier">image</span>: redis:alpine
+<span class="LineNr"> 5 </span>  <span class="Identifier">mysql</span>:
+<span class="LineNr"> 6 </span>    <span class="Identifier">image</span>: mysql
+<span class="LineNr"> 7 </span>  <span class="Identifier">mailcatcher</span>:
+<span class="LineNr"> 8 </span>    <span class="Identifier">image</span>: schickling/mailcatcher
+<span class="LineNr"> 9 </span>  <span class="Identifier">application</span>:
+<span class="LineNr">10 </span>    <span class="Identifier">image</span>: dockerwest/php-pimcore:7.1
+<span class="LineNr">11 </span>    <span class="Identifier">volumes</span>:
+<span class="LineNr">12 </span>      - ../pimcore:/phpapp
+<span class="LineNr">13 </span>    <span class="Identifier">links</span>:
+<span class="LineNr">14 </span>      - mysql
+<span class="LineNr">15 </span>      - redis
+<span class="LineNr">16 </span>      - mailcatcher
+<span class="LineNr">17 </span>  <span class="Identifier">nginx</span>:
+<span class="LineNr">18 </span>    <span class="Identifier">image</span>: dockerwest/nginx-pimcore:stable
+<span class="LineNr">19 </span>    <span class="Identifier">volumes</span>:
+<span class="LineNr">20 </span>      - ../pimcore:/phpapp
+<span class="LineNr">21 </span>    <span class="Identifier">links</span>:
+<span class="LineNr">22 </span>      - application
+</pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>We can define our application stack in a config file and run with it</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img src="assets/better.gif" alt="better"/>
+                        <aside class="notes">
+                            <ul>
+                                <li>should not be used in production (nah, who cares)</li>
+                                <li>made it easier to deploy</li>
+                                <li>well easier on single server</li>
+                                <li>managed with service files, systemd, openrc, ...</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                </section>
+
+                <section data-background="assets/Fish_Final.jpg" >
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li>our requirements</li>
+                            <li>some history</li>
+                            <li style="color: #F80"><strong>docker swarm</strong></li>
+                            <li>demo time</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <img style="border: 0; background: transparent; box-shadow: 0 0;" src="assets/docker-swarm-logo.png" />
+                        <aside class="notes">
+                            <ul>
+                                <li>load balancing</li>
+                                <li>service discovery</li>
+                                <li>cluster of docker engines</li>
+                                <li>exposes multiple dockers as "one"</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>concepts</h2>
+                        <ul>
+                            <li class="fragment">node</li>
+                            <li class="fragment">stack</li>
+                            <li class="fragment">service</li>
+                            <li class="fragment">task</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>node: a docker container engine, usually a different machine</li>
+                                <li>stack: set of services that belong together</li>
+                                <li>service: similar like you do docker run but with extra functionality</li>
+                                <li>task: the running container, for example: service fpm, 3 replicas, one of the fpm's is a task</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>setting up your own swarm</h2>
+                        <ul>
+                            <li class="fragment">manager</li>
+                            <li class="fragment">worker</li>
+                            <li class="fragment">other?</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>manager: is a more privileged node, can oversee, manage the swarm, add and remove stacks, ...</li>
+                                <li>worker: can be used to scale your swarm, but can't manage services or other things within the swarm</li>
+                                <li>other: storage, databases, could be cloud services?</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>choose our base</h2>
+                    </section>
+
+                    <section>
+                        <h2>more traditional distributions</h2>
+                        <img src="assets/centos-logo.png" alt="centos" style="width: 100px; border: 0; background: transparent; box-shadow: 0 0; border-radius: 20%;" />
+                        <img src="assets/debian-logo.jpg" alt="debian" style="width: 100px; border: 0; background: transparent; box-shadow: 0 0; border-radius: 20%;" />
+                        <img src="assets/opensuse-logo.jpg" alt="fedora" style="width: 100px; border: 0; background: transparent; box-shadow: 0 0; border-radius: 20%;" />
+                        <img src="assets/ubuntu-logo.png" alt="ubuntu" style="width: 100px; border: 0; background: white; box-shadow: 0 0; border-radius: 20%;" />
+                        <aside class="notes">
+                            <ul>
+                                <li>the more tradidtional distributions will be easier to find with most hosters</li>
+                                <li>all of the shown distributions can run docker but might need 3rd party repositories to stay up2date</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>more advanced or specific distributions</h2>
+                        <img src="assets/Arch-linux-logo.png" alt="arch linux" style="width: 100px; border: 0; background: white; box-shadow: 0 0; border-radius: 20%;" />
+                        <img src="assets/coreos-logo.png" alt="coreos" style="width: 100px; border: 0; background: transparent; box-shadow: 0 0; border-radius: 20%;" />
+                        <img src="assets/alpinelinux-logo.png" alt="alpine linux" style="height: 100px; border: 0; background: white; box-shadow: 0 0; border-radius: 20%;" />
+                        <img src="assets/rancher-logo.jpg" alt="rancher" style="height: 100px; border: 0; background: transparent; box-shadow: 0 0; border-radius: 20%;" />
+                        <aside class="notes">
+                            <ul>
+                                <li>might require more knowledge how to setup</li>
+                                <li>all of the shown ones come with docker batteries included and frequent updates</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>setup a swarm</h2>
+                        <p class="fragment">Chosen base distribution: <br />
+                            <img src="assets/alpinelinux-logo.png" alt="alpine linux" style="height: 100px; border: 0; background: white; box-shadow: 0 0; border-radius: 20%;" />
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>system</h2>
+                        <pre style="background-color: black;">
+$ apk add --update --no-cache docker
+$ rc-update add docker default
+                        </pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>most other distributions will have systemd</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>certificates</h2>
+                        <p>communication between client and server will be encrypted</p>
+                        <aside class="notes">
+                            <ul>
+                                <li>if you use docker-machine, this will be done for you</li>
+                                <li>to learn how stuff works I do it like this</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>client config</h2>
+                        <p>to communicate with our server(s) we have to setup some environment variables</p>
+                        <pre><code>
+export DOCKER_HOST=tcp://192.168.250.31:2375
+export DOCKER_CERT_PATH=$(pwd)/client-cert
+export DOCKER_TLS_VERIFY=1
+                        </code></pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>host</li>
+                                <li>where to find the client certificates</li>
+                                <li>if we want tls verified</li>
+                                <li>exports should point to a "master" node</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>setup the swarm</h2>
+                        <pre style="background-color: black;">
+# docker swarm init \
+    --advertise-addr=[internal server ip]
+# docker swarm join-token \
+    -q worker
+# docker swarm join \
+    --token [worker token] \
+    [internal master server ip]
+                        </pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>note that a real life setup will require more advanced networking setup</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>simple check swarm status</h2>
+                        <pre style="background-color: black;">
+$ docker node ls
+$ docker service ls
+                        </pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>start demoing stuff, or it will get boring fast</li>
+                            </ul>
+                        </aside>
+
+                    </section>
+
+                    <section>
+                        <h2>docker service</h2>
+                        <p>create/manage a single service within a swarm</p>
+                        <aside class="notes">
+                            <ul>
+                                <li>usually we will not do this since a stack is easier to manage even if it only contains 1 service</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>docker stack</h2>
+                        <p>create/manage an application stack within a swarm</p>
+                        <aside class="notes">
+                            <ul>
+                                <li>demo the visualizer stack, simple and can be demo'd without losing too much time</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>deploying a simple stateless application</h2>
+                        <aside class="notes">
+                            <ul>
+                                <li>demo the simple sample without traefik</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>challenges encountered</h2>
+                        <ul>
+                            <li class="fragment">create stateless images</li>
+                            <li class="fragment">create swarm configuration</li>
+                            <li class="fragment">registry? self hosted? docker hub?</li>
+                            <li class="fragment">what if I want to add more applications</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>What if I want more applications</h2>
+                        <p class="fragment">Enter traefik <br />
+                            <img style="background: none !important; border: 0; width: 30%;" src="assets/traefik.png" alt="traefik"/>
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>haproxy</li>
+                                <li>nginx as proxy</li>
+                                <li>numerous other proxies</li>
+                                <li>deploy traefik as demo</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <img src="assets/done.gif" alt="done"/>
+                    </section>
+                    <section>
+                        <img src="assets/really.gif" alt="really"/>
+                    </section>
+
+                    <section>
+                        <h2>I like visual representation</h2>
+                    </section>
+
+                    <section>
+                        <img style="width: 70%" src="assets/visualizer.png" alt="visualizer" />
+                        <aside class="notes">
+                            <ul>
+                                <li>way better, now we can quickly see where something is running</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>deploying pimcore, there is state, a database, ...</h2>
+                    </section>
+
+                    <section>
+                        <h2>additional challenges</h2>
+                        <ul>
+                            <li class="fragment">prepare your database</li>
+                            <li class="fragment">how to handle/store state</li>
+                            <li class="fragment">handle scheduled jobs</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>are we still missing something</h2>
+                        <ul>
+                            <li class="fragment">central logging</li>
+                            <li class="fragment">metrics / alerting</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>central logging simplify the search for issues</li>
+                                <li>metrics can show us if we need to scale</li>
+                                <li>alerting can help us preventing disaster</li>
+                            </ul>
+                        </aside>
+                    </section>
+                </section>
+
+                <section data-background="assets/Fish_Final.jpg" >
+                    <section>
+                        <h2>topics</h2>
+                        <ul>
+                            <li>our requirements</li>
+                            <li>some history</li>
+                            <li>docker swarm</li>
+                            <li style="color: #F80"><strong>demo time</strong></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>pimcore 5</h2>
+                        <img style="width: 70%" src="assets/pimcore.png" alt="pimcore"/>
+                    </section>
+
+                    <section>
+                        <h2>magento 2</h2>
+                        <img style="width: 70%" src="assets/magento2.png" alt="magento"/>
+                    </section>
+                </section>
+
+                <section data-background="assets/Fish_Final.jpg">
+                    <section>
+                        <h2>summarized</h2>
+                        <ul>
+                            <li class="fragment">we can run php applications</li>
+                            <li class="fragment">we can see where what is running</li>
+                            <li class="fragment">we have some monitoring and alerting</li>
+                            <li class="fragment">we have central logging</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <img src="assets/8441.jpg" alt="mindblown" />
+                    </section>
+
+                </section>
+
+                <section data-background="assets/Fish_Final.jpg">
+                    <section data-transition="none">
+                        <div style="width: 50%; display: inline-block; margin-right: 2%; vertical-align: top;">
+                            <h2 style="text-align: left">Questions?</h2>
+                            <p style="text-align: left;"><a href="https://joind.in/talk/05b5d">https://joind.in/talk/05b5d</a></p>
+                            <h2 style="text-align: left">Ike Devolder</h2>
+                        </div>
+                        <div style="width: 46%; display: inline-block;">
+                            <a href="https://joind.in/talk/05b5d"><img src="assets/joindinqr.png" alt="joindin qr" style="width: 220px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                        <p></p>
+                        <div style="vertical-align: top;">
+                            <p style="text-align: left;"><a href="https://twitter.com/BlackIkeEagle">@BlackIkeEagle</a></p>
+                            <p style="text-align: left;">DevOps / developer @ <a href="https://www.studioemma.com">Studio Emma</a></p>
+                            <p style="text-align: left;"><a href="http://www.php-wvl.be">PHP-WVL</a> / <a href="https://dockerwest.github.io">Docker West</a> / <a href="https://www.archlinux.org">Arch Linux</a> Trusted User</p>
+                        </div>
+                        <div>
+                            <a href="https://www.studioemma.com"><img src="assets/se-logo.png" alt="studioemma" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="http://www.php-wvl.be"><img src="assets/php-wvl-logo.png" alt="php-wvl" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="https://dockerwest.github.io"><img src="assets/docker-west.png" alt="docker west" style="width: 80px; border: 0; background: white; box-shadow: 0 0; border-radius: 5%;" /></a>&nbsp;
+                            <a href="https://www.archlinux.org"><img src="assets/Arch-linux-logo.png" alt="arch linux" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                    </section>
+
+                    <section data-transition="none">
+                        <div style="width: 50%; display: inline-block; margin-right: 2%; vertical-align: top;">
+                            <h2 style="text-align: left">Thanks.</h2>
+                            <p style="text-align: left;"><a href="https://joind.in/talk/05b5d">https://joind.in/talk/05b5d</a></p>
+                            <h2 style="text-align: left">Ike Devolder</h2>
+                        </div>
+                        <div style="width: 46%; display: inline-block;">
+                            <a href="https://joind.in/talk/05b5d"><img src="assets/joindinqr.png" alt="joindin qr" style="width: 220px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                        <p></p>
+                        <div style="vertical-align: top;">
+                            <p style="text-align: left;"><a href="https://twitter.com/BlackIkeEagle">@BlackIkeEagle</a></p>
+                            <p style="text-align: left;">DevOps / developer @ <a href="https://www.studioemma.com">Studio Emma</a></p>
+                            <p style="text-align: left;"><a href="http://www.php-wvl.be">PHP-WVL</a> / <a href="https://dockerwest.github.io">Docker West</a> / <a href="https://www.archlinux.org">Arch Linux</a> Trusted User</p>
+                        </div>
+                        <div>
+                            <a href="https://www.studioemma.com"><img src="assets/se-logo.png" alt="studioemma" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="http://www.php-wvl.be"><img src="assets/php-wvl-logo.png" alt="php-wvl" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>&nbsp;
+                            <a href="https://dockerwest.github.io"><img src="assets/docker-west.png" alt="docker west" style="width: 80px; border: 0; background: white; box-shadow: 0 0; border-radius: 5%;" /></a>&nbsp;
+                            <a href="https://www.archlinux.org"><img src="assets/Arch-linux-logo.png" alt="arch linux" style="width: 80px; border: 0; background: transparent; box-shadow: 0 0;" /></a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Image credits</h2>
+                        <ul>
+                            <li>https://blenderartists.org/forum/showthread.php?343877-Fish-Swarm</li>
+                            <li>https://giphy.com/search/oh-noo</li>
+                            <li>https://giphy.com/search/panic</li>
+                            <li>http://www.fig.sh/</li>
+                            <li>https://giphy.com/search/better</li>
+                            <li>https://traefik.io/</li>
+                            <li>https://giphy.com/search/really</li>
+                            <li>https://giphy.com/search/done</li>
+                        </ul>
+                    </section>
+                </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: false,
+				progress: true,
+				history: true,
+				center: true,
+
+                width: "90%",
+                height: "90%",
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: 'slide',
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
