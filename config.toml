@@ -8,11 +8,6 @@ theme = "hyde"
   layoutReverse = true
   disqusShortname = "blackikeeaglesblog"
 [[menu.main]]
-    name = "About"
-    weight = -110
-    identifier = "about"
-    url = "/page/about/"
-[[menu.main]]
     name = "Blogs"
     weight = -105
     identifier = "blogs"
