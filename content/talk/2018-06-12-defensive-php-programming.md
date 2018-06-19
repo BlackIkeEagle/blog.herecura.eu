@@ -8,6 +8,7 @@ categories:
 tags:
     - "PHP"
 meetuplogo: "/images/logo_phpwvl.jpeg"
+meetupphoto: "/talk/2018-06-12-defensive-php-programming/Dfg-LrGW0AArcvX.jpg"
 slides: "/talks/20180612-defensive-php-programming/defensive-php-programming-2018-06-phpwvl.pdf"
 ---
 
