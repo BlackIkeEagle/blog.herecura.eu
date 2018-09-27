@@ -15,13 +15,26 @@
       {{ end }}
     </div>
     {{ with .Params.slides }}
-    <h2>Slides</h2>
-    <div style='position: relative; width: 100%; height: 0px; padding-bottom: 60%;'>
-        <iframe src="{{ . }}" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%'></iframe>
+    <div id="slideswrapper">
+      <h2>Slides</h2>
+      <div style='position: relative; width: 100%; height: 0px; padding-bottom: 60%;'>
+          <iframe id="slides" data-src="{{ . }}" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%'></iframe>
+      </div>
     </div>
     <a href="{{ . }}">slides</a>
     {{ end }}
   </div>
 
+  <script type="text/javascript">
+    var iframe=document.getElementById('slides');
+    var iframewrapper=document.getElementById('slideswrapper');
+    var src = iframe.getAttribute('data-src');
+
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      iframe.setAttribute('src', src);
+    } else {
+      iframewrapper.setAttribute('style', 'display: none');
+    }
+  </script>
 </body>
 </html>
