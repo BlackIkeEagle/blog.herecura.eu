@@ -9,6 +9,7 @@ categories:
 tags:
     - "PHP"
 meetuplogo: "/images/logo_phpdd2018.png"
+meetupphoto: "/talk/2018-09-22-profiling-php-applications/200.jpg"
 slides: "/talks/20180922-profiling-php/profiling-php-2018-09-22-phpdd.pdf"
 ---
 
