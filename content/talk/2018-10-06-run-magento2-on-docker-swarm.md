@@ -12,6 +12,7 @@ tags:
     - "Swarm"
     - "Magento 2"
 meetuplogo: "/images/logo_mage-titans.png"
+meetupphoto: "/talk/2018-10-06-run-magento2-on-docker-swarm/Do0kXZbXkAEqlND.jpg"
 slides: "/talks/20181006-run-magento2-on-docker-swarm/run-magento-on-docker-swarm-2018-10-06-magetitans-nl.pdf"
 ---
 
