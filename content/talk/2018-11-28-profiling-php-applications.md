@@ -9,6 +9,8 @@ categories:
 tags:
     - "PHP"
 meetuplogo: "/images/logo_fullstackantwerp.jpeg"
+meetupphoto: "/talk/2018-11-28-profiling-php-applications/DtHSsANWkAEFKzQ.jpg"
+slides: "/talks/20181128-profiling-php/profiling-php-2018-11-28-fullstackantwerp.pdf"
 ---
 
 Help my client is complaining some parts of the application are slow. Now what?
