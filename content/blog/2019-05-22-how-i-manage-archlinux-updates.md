@@ -36,7 +36,7 @@ I can do this manually while still working on the machine.
 Whenever I see fit I will run the actual update. I'm not updating every day, so
 a kernel update or another system critical package update is not uncommon in
 this case. Once I have decided I will do an update I close everything. I logout
-of my "desktop" and switch to tty2 (ctrl + alt + 2).
+of my "desktop" and switch to tty2 (ctrl + alt + F2).
 
 I login on the tty and run the following:
 
