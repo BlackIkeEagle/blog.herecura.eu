@@ -9,13 +9,17 @@ theme = "hyde"
   disqusShortname = "blackikeeaglesblog"
 [[menu.main]]
     name = "Blogs"
-    weight = -105
+    weight = -200
     identifier = "blogs"
     url = "/blog/"
 [[menu.main]]
     name = "Talks"
-    weight = -100
+    weight = -150
     url = "/talk/"
+[[menu.main]]
+    name = "About me"
+    weight = -100
+    url = "https://herecura.eu"
 [[menu.blogroll]]
     name = "Docker West"
     weight = -120
