@@ -1,5 +1,5 @@
 ---
-title: "My browser is not a media player"
+title: "My browser is not *my* media player"
 description: "My browser, please don't interfere with my media keys"
 date: "2019-08-24"
 categories:
