@@ -20,7 +20,7 @@ That was 17.00h and the certificates were expiring at 19.00h. First ofcourse
 have diner, do  something with the kids, get them to bed, ...
 
 So yeah 20.00h when I started looking at it. Somewhere due lack of updates or a
-confiugration bug, the script that was meant to update my letsencrypt
+configuration bug, the script that was meant to update my letsencrypt
 certificates failed. And I blatantly ignored multiple notifications the
 certificates were about to expire. So all entirely my fault.
 
