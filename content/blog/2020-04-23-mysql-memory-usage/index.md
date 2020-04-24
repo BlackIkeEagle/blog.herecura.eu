@@ -30,10 +30,10 @@ Ofcourse we made sure mysqld was not getting killed because we don't want
 corrupt mysql databases. We added `OOMScoreAdjust=-500` to the mysql service
 (which was incorrectly set on the mysql.slice by me, oops).
 
-Looking at the information we had we see after the upgrate we are using a lot
-more memory. The following graph also shows this. (The time markers in the
-graph are 12 hours appart, the dates are removed because they are not important
-for this article).
+Looking at the information we had, we see after the upgrate we are using a lot
+more memory. The following graph shows this. (The time markers in the graph are
+12 hours appart, the dates are removed because they are not important for this
+article).
 
 ![increased-memory-usage](./increased-memory-usage.png)
 
