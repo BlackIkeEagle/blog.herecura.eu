@@ -26,7 +26,7 @@ kernel: [1412369.046959] oom_reaper: reaped process 98651 (mysqld), now anon-rss
 
 Identifiable information is removed from the above lines.
 
-Ofcourse we made sure mysqld was not getting killed because we don't want
+Of course we made sure mysqld was not getting killed because we don't want
 corrupt mysql databases. We added `OOMScoreAdjust=-500` to the mysql service
 (which was incorrectly set on the mysql.slice by me, oops).
 
