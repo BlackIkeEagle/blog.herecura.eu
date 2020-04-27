@@ -49,8 +49,8 @@ behaviour.
 
 This is not an easy task since we moved to a new base platform, new kernel, new
 toolchain, new everything. So what is changed that would cause a big difference
-in memory usage with the same mysql configuration. We're using mysql everywhere,
-but we are using Percona mysql server.
+in memory usage with the same mysql configuration. We're using mysql everywhere
+in this article, but we are using Percona mysql server.
 
 Could it be the kernel? One of the mitigations for one of the many cpu issues?
 Another config setting?
