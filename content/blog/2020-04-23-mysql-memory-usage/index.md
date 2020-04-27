@@ -30,9 +30,9 @@ Ofcourse we made sure mysqld was not getting killed because we don't want
 corrupt mysql databases. We added `OOMScoreAdjust=-500` to the mysql service
 (which was incorrectly set on the mysql.slice by me, oops).
 
-Looking at the information we had, we see after the upgrate we are using a lot
+Looking at the information we had, we see after the upgrade we are using a lot
 more memory. The following graph shows this. (The time markers in the graph are
-12 hours appart, the dates are removed because they are not important for this
+12 hours apart, the dates are removed because they are not important for this
 article).
 
 ![increased-memory-usage](./increased-memory-usage.png)
@@ -85,8 +85,8 @@ google.
 
 ## What do we want in the results
 
-Frist of all we want to see the overal memory usage and ofcourse we would like
-to see if the overall speed is not impacted.
+Frist of all we want to see the overall memory usage and of course we would
+like to see if the overall speed is not impacted.
 
 ## The tests
 
@@ -143,7 +143,7 @@ databases. The data in these databases is not shareable with the world :).
 * Start mysqld
 * when mysqld is started start logging rss and vsz in a csv file per second
 * run idle for 20 seconds
-* run a set of queries in parallell (the query execution time ranges from 0,03
+* run a set of queries in parallel (the query execution time ranges from 0,03
   sec to 10,2 sec without load) 40 x 7 queries which are launced quickly, we
   reach between 130 to 140 connections simultanously.
 * after that just run the same queries but in lower volume for a longer period
@@ -151,7 +151,7 @@ databases. The data in these databases is not shareable with the world :).
 * then 120 idle run to see if memory is being released
 * end
 
-Query scrpt without the actual queries:
+Query script without the actual queries:
 
 ``` sh
 #!/usr/bin/env bash
@@ -252,7 +252,7 @@ The total runtime of this test was 2206 seconds. This we will use as the
 baseline for our other tests.
 
 We see some peaks when we are doing more queries, and if we keep doing queries
-over a long time we see a continuous upward trend which flattens of over time.
+over a long time we see a continuous upward trend which flattens off over time.
 Our virtual memory is a bit less than double of our resident memory usage.
 
 ## Jemalloc memory test
@@ -324,10 +324,10 @@ implementations.
 ## Conclusion
 
 All combined we can draw the conclusion that in this test the tcmalloc is the
-clear winner, since its performance is fairly good but it shines in its memory
+clear winner, since it's performance is fairly good but it shines in memory
 usage being the lowest of the three, by far. Since we were searching for
 something to reduce our memory usage we must subject mysql with tcmalloc to
-real world database use and see if it holds up there. But its very promising.
+real world database use and see if it holds up there. But it's very promising.
 For this test tcmalloc just wins.
 
 [1]: http://man7.org/linux/man-pages/man3/mallopt.3.html
