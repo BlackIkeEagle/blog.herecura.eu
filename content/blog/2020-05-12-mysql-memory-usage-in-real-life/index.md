@@ -58,8 +58,11 @@ cannot believe it.
 ## Conclusion
 
 In production the behaviour of jemalloc differed a lot from what we saw in the
-benchmarks. Glibc has practically the same behaviour and tcmalloc really shines
-in its stable memory consumption. We can again conclude tcmalloc is the clear
-winner when we are using it with mysql in production.
+benchmarks. This different behaviour is mostly related to our workload. With
+other workloads we know for a fact that jemalloc is doing fine. Glibc has
+practically the same trend as we have seen in the benchmark tests. And tcmalloc
+really shines, whatever you throw at it, its memory consumption is extremely
+stable. We can conclude tcmalloc is the clear winner for our workload and
+usecase in combination with mysql.
 
 [1]: https://blog.herecura.eu/blog/2020-04-23-mysql-memory-usage/
