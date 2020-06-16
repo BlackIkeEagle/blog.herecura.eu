@@ -504,7 +504,10 @@ with php-fpm, the biggest drawback seems to be the significantly higher memory
 usage. So OpenLiteSpeed with php is really fast, when using php started by
 OpenLiteSpeed it seems under higher load it stops performing well. The
 combination OpenLiteSpeed with lsphp over tcp seems best but uses a lot more
-memory compared to the more traditional setups.
+memory compared to the more traditional setups. Note that when OpenLiteSpeed
+manages the php instance, when there are no requests the lsphp instances will
+be completely stopped. So in that case the memory used by lsphp will be
+released.
 
 [1]: https://www.joedog.org/siege-home/
 [2]: https://github.com/astrofrog/psrecord
