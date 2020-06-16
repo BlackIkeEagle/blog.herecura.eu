@@ -162,6 +162,12 @@ All docker-compose setups will be congfigured in a similar fashion as the
 and if needed build custom images where needed - being, openlitespeed, apache,
 lshp.
 
+### Graph units
+
+- cpu will be measured in % cpu. Since there are 12 threads in this machine in
+  theory 1200% would indicate all cpu's are at 100% usage.
+- memory will be measured in MB.
+
 ### phpinfo test
 
 We will modify the `index.php` file so it only has `phpinfo();`.
