@@ -21,7 +21,7 @@ and Open Source "counterpart" of the LiteSpeed server by [litespeedtech][2]. It
 claims to be faster than Nginx and Apache httpd. And as an extra, it can handle
 `.htaccess` files, so many applications will work just out-of-the-box.
 
-<!-- more -->
+<!--more-->
 
 ## What?
 
