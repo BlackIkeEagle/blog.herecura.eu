@@ -17,6 +17,13 @@ OpenLiteSpeed looks like a nice and fancy webserver, but how does it compare in
 terms of performance to the webservers we usually use. We are mostly interested
 in how it compares to Apache httpd and Nginx.
 
+> After this blogpost was posted, the nice people of Litespeedtech reached out
+> to verify some things. They found there is a big difference between siege and
+> other stress test tools. So I'll run the tests again with an updated siege
+> configuration and see if it makes a huge difference. Once the new tests are
+> completed, the blogpost will be updated and thisone will stay available for
+> reference.
+
 <!--more-->
 
 ## Goals
