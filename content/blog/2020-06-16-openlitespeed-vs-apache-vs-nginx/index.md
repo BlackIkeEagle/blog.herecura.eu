@@ -130,10 +130,9 @@ Hard disk
 
 ### The method
 
-We will use [siege][1] to run our tests. We will be using
-[this default configuration](./siegerc). We will also record the cpu and
-memory usage with [psrecord][2] to see if there is a lot of difference to be
-seen there.
+We will use [siege][1] to run our tests. We will also record the cpu and memory
+usage with [psrecord][2] to see if there is a lot of difference to be seen
+there.
 
 We will warmup both php and the webserver by doing the requests for 20 seconds.
 Then we will always record 80 seconds of cpu and memory usage, 10 seconds idle
