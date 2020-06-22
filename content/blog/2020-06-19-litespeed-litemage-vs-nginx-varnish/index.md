@@ -408,7 +408,8 @@ the higher concurrency and you have a clear winner.
 Again we will check how the cached pages compare to the full browsing
 experience. This time with the specific category page to reduce the randomness
 of the browsing. Here we will have a straight up comparison between Litespeed
-cache and Varnish cache since we took out all the extras.
+cache and Varnish cache since we took out all the extras. All of the
+transactions we will have here are 100% cache hits.
 
 ```sh
 siege -R ./siegerc --no-parser -c1 -t 60s \
@@ -452,7 +453,8 @@ that strange since we are hitting the same page over and over again.
 ![magento category page noparser concurrency 10 total cpu usage](./magento-category-noparser-c10-cpu-usage.png)
 ![magento category page noparser concurrency 10 total rss memory usage](./magento-category-noparser-c10-rss-memory-usage.png)
 
-So again Litespeed is ahead in this test.
+So again Litespeed is ahead in this test. Litespeed can do around 10% more
+transactions, by only having half of the cpu usage.
 
 ### All results
 
