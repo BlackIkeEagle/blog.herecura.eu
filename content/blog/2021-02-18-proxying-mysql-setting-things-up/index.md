@@ -22,6 +22,8 @@ understanding what the proxies can do and how to set those up.
 
 We will try some proxies with sysbench and see what that gives us.
 
+<!--more-->
+
 ## Local playground
 
 We will setup a local proxy playground to try stuff on our local machine.
