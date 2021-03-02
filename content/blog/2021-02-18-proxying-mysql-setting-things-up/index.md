@@ -270,7 +270,7 @@ The next test will be done on actual production hardware with real networking,
 not just virtual networking via docker. Read in [Part2][6].
 
 And as a final test we should compare an application an how much we see
-performance impact. Read in Part 3 (TODO).
+performance impact. Read in [Part 3][7].
 
 [1]: https://www.percona.com/software/mysql-database/percona-server
 [2]: https://www.haproxy.org
@@ -278,3 +278,4 @@ performance impact. Read in Part 3 (TODO).
 [4]: https://proxysql.com
 [5]: https://github.com/BlackIkeEagle/proxysql-playground
 [6]: https://blog.herecura.eu/blog/2021-02-26-proxying-mysql-benchmarking-on-production-hardware/
+[7]: https://blog.herecura.eu/blog/2021-03-02-proxying-mysql-wordpress-and-magento/
