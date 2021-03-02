@@ -52,6 +52,11 @@ We did this research to see if we could leverage a proxy to transparently serve
 MySQL 5.7 and MySQL 8.0 database to end user applications, but the huge impact
 on throughput does not allow us to do so.
 
+As a sidenote we can add that applications who have sufficient local caching
+the impact of using a remote MySQL database will drastically lower. So if you
+are developing your application try to keep this in mind and only have
+roundtrips to your database when its really necessary.
+
 [1]: https://blog.herecura.eu/blog/2021-02-18-proxying-mysql-setting-things-up/
 [2]: https://blog.herecura.eu/blog/2021-02-26-proxying-mysql-benchmarking-on-production-hardware/
 [3]: https://blog.herecura.eu/blog/2021-03-02-proxying-mysql-wordpress-and-magento/
