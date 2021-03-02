@@ -1,5 +1,5 @@
 ---
-title: "Proxying MySQL, Wordpress and Magneto performance"
+title: "Proxying MySQL, WordPress and Magneto performance"
 description: "An attempt to improve remote mysql performance"
 date: "2021-03-02"
 categories:
@@ -19,14 +19,14 @@ with different proxies we will test if we see impact on real life - yet demo -
 applications.
 
 Therefore we have choosen to test with sample e-commerce sites, one based on
-Wordpress, another based on Magento. Note we will not try to compare both
+WordPress, another based on Magento. Note we will not try to compare both
 platforms but measure the impact of the place of our mysql on the application.
 
 <!--more-->
 
-## Wordpress setup
+## WordPress setup
 
-- [Wordpress][1] 5.6.2
+- [WordPress][1] 5.6.2
 - [Nginx][2] 1.18.0
 - [PHP][3] 7.4.12
 - [MySQL][4] 8.0 ([Percona Server][5] 8.0.22-13)
@@ -38,7 +38,7 @@ use the ["Brandstore" template][7]. We will use this shop without further
 customization to see if we can detect performance differences between the
 different ways we will use to access MySQL.
 
-![Wordpress demo e-commerce](./Screenshot_20210302_084326.png)
+![WordPress demo e-commerce](./Screenshot_20210302_084326.png)
 
 ## Magento setup
 
@@ -85,7 +85,7 @@ accept-encoding = gzip, deflate
 url-escaping = true
 ```
 
-Wordpress testscript:
+WordPress testscript:
 
 ```sh
 #!/usr/bin/env bash
@@ -121,7 +121,7 @@ siege -R ./siegerc -c 2 -t 60s \
   > "magento-$1-product-page.siege.log" 2>&1
 ```
 
-## Wordpress test
+## WordPress test
 
 We'll check how many hits we get and how good our pages response times are. We
 are only looking at the rendering of the page because that is the part where we
@@ -129,21 +129,21 @@ will see MySQL impact.
 
 Home page:
 
-![Wordpress homepage hits](./wordpress-homepage-hits.png)
+![WordPress homepage hits](./wordpress-homepage-hits.png)
 
-![Wordpress homepage response times](./wordpress-homepage-response-times.png)
+![WordPress homepage response times](./wordpress-homepage-response-times.png)
 
 Category page:
 
-![Wordpress category page hits](./wordpress-categroypage-hits.png)
+![WordPress category page hits](./wordpress-categroypage-hits.png)
 
-![Wordpress category page resonse times](./wordpress-categroypage-response-times.png)
+![WordPress category page resonse times](./wordpress-categroypage-response-times.png)
 
 Product page:
 
-![Wordpress product page hits](./wordpress-productpage-htis.png)
+![WordPress product page hits](./wordpress-productpage-htis.png)
 
-![Wordpress product page response times](./wordpress-productpage-response-times.png)
+![WordPress product page response times](./wordpress-productpage-response-times.png)
 
 What we see here is that the local ProxySQL with 60s `SELECT` query caching
 brings us very close to the results we have with a local MySQL database. There
@@ -175,7 +175,7 @@ Product page:
 ![Magento product page response times](./magento-productpage-response-times.png)
 
 Here we see the same trend that the ProxySQL caching helps a lot. It looks a
-bit less significant compared to the Wordpress results, but still massively
+bit less significant compared to the WordPress results, but still massively
 better than plain TCP proxies or long distance MySQL connection.
 
 ## Extended Magento test
