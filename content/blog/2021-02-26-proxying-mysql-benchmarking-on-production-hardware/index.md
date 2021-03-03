@@ -25,6 +25,12 @@ MySQL and is the difference between the proxies still pretty big.
 
 <!--more-->
 
+## Goal
+
+We want to find out if we can move MySQL to separate machines. If we can, that
+will make the overall maintenance of machines in our cluster easier since we
+can make those more single purpose.
+
 ## What will we test
 
 For MySQL we want to test both 5.7 and 8.0, we can't keep running MySQL 5.x
