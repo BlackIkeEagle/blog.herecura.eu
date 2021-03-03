@@ -10,7 +10,7 @@ tags:
   - "server"
 ---
 
-The series of Proxying MySQL left one thing unanswered. How large is the
+The series of [Proxying MySQL][1] left one thing unanswered. How large is the
 difference between using local TCP or the socket. Yesterday I learned about
 socat, shame on me that I did not knew about this tool, so lets drop another
 remote test in there as well.
@@ -24,16 +24,16 @@ socket connection to MySQL.
 
 ## What will we test
 
-- [MySQL][1] 8.0 (Percona Server 8.0.22-13)
+- [MySQL][2] 8.0 (Percona Server 8.0.22-13)
 
 The following tests will be executed:
 
 - local on the socket `/var/run/mysqld/mysqld.sock`
 - local with TCP connection
 - remote TCP
-- remote fake socket with [`socat`][2]
+- remote fake socket with [`socat`][3]
 
-The test itself will be run with [sysbench][3].
+The test itself will be run with [sysbench][4].
 
 ```sh
 #!/usr/bin/env bash
@@ -255,6 +255,7 @@ It would be cool to see if we can share the mysql socket over UDP, but I did
 not seem to get it to work sadly enough.
 
 
-[1]: https://www.percona.com/software/mysql-database/percona-server
-[2]: http://www.dest-unreach.org/socat/
-[3]: https://github.com/akopytov/sysbench
+[1]: https://blog.herecura.eu/blog/2021-03-02-2-proxying-mysql-conclusion/
+[2]: https://www.percona.com/software/mysql-database/percona-server
+[3]: http://www.dest-unreach.org/socat/
+[4]: https://github.com/akopytov/sysbench
