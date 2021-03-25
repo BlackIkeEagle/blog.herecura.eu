@@ -176,10 +176,10 @@ difference is pretty obvious:
 
 The gzipped content is about 1% of the original size that has to be transferred
 over the wire, but the brotli response is only 20% of the gzipped content, and
-compared to the original 0.2%. So for mostly text brolti clearly compresses way
+compared to the original 0.2%. So for mostly text brotli clearly compresses way
 better.
 
-## Compare cpu and memory usage of Nginx
+## Compare cpu and memory usage of Nginx (the test)
 
 [wrk][3] will be used to generate some traffic and by using [psrecord][4] the
 cpu and memory usage will be tracked.
@@ -189,7 +189,7 @@ The test will be run in the following steps:
 - start nginx
 - start psrecord and record for 80s
 - wait 10s
-- start wrk with 5 connections, 5 threads for 60s
+- start wrk with 5 connections, 1 threads for 60s
 - wait 10s for psrecord to finish
 - stop nginx
 
@@ -217,11 +217,11 @@ fi
 
 sleep 10
 if [ -z "$1" ]; then
-  wrk -c 5 -t 5 -d 60s \
+  wrk -c 5 -t 1 -d 60s \
     "https://brotli.test/index.html" \
     > "nginx-htmlfile.uncompressed.wrk.$log_date.log" 2>&1
 else
-  wrk -c 5 -t 5 -d 60s \
+  wrk -c 5 -t 1 -d 60s \
     -H "Accept-Encoding: $1" \
     "https://brotli.test/index.html" \
     > "nginx-htmlfile.$1.wrk.$log_date.log" 2>&1
@@ -229,58 +229,103 @@ fi
 sleep 10
 ```
 
+## Compare cpu and memory usage of Nginx (comp_level=6)
+
 Wrk result uncompressed:
 
 ```
 Running 1m test @ https://brotli.test/index.html
-  5 threads and 5 connections
+  1 threads and 5 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     5.56ms    1.74ms  26.24ms   83.67%
-    Req/Sec   180.99     39.37   330.00     71.43%
-  54115 requests in 1.00m, 90.82GB read
-Requests/sec:    901.47
-Transfer/sec:      1.51GB
+    Latency     8.10ms    1.61ms  23.49ms   79.96%
+    Req/Sec   615.71     81.90   787.00     71.71%
+  36833 requests in 1.00m, 61.81GB read
+Requests/sec:    612.86
+Transfer/sec:      1.03GB
 ```
 
 Wrk result gzipped:
 
 ```
 Running 1m test @ https://brotli.test/index.html
-  5 threads and 5 connections
+  1 threads and 5 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency    18.39ms    4.90ms  57.57ms   76.99%
-    Req/Sec    54.46     11.26    80.00     64.30%
-  16339 requests in 1.00m, 288.98MB read
-Requests/sec:    272.04
-Transfer/sec:      4.81MB
+    Latency    20.01ms    9.25ms  81.44ms   91.67%
+    Req/Sec   259.59     66.53   373.00     81.83%
+  15522 requests in 1.00m, 274.53MB read
+Requests/sec:    258.51
+Transfer/sec:      4.57MB
 ```
 
 Wrk result brotli:
 
 ```
 Running 1m test @ https://brotli.test/index.html
-  5 threads and 5 connections
+  1 threads and 5 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     9.54ms    2.13ms  43.72ms   77.61%
-    Req/Sec   105.08     19.15   151.00     69.43%
-  31433 requests in 1.00m, 133.88MB read
-Requests/sec:    523.33
-Transfer/sec:      2.23MB
+    Latency     9.94ms    3.93ms  40.33ms   93.22%
+    Req/Sec   518.84    116.14   700.00     80.17%
+  31002 requests in 1.00m, 132.04MB read
+Requests/sec:    516.41
+Transfer/sec:      2.20MB
 ```
 
 Nginx cpu usage:
 
-![nginx cpu](./nginx-cpu-usage.png)
+![nginx cpu](./nginx-cl6-cpu-usage.png)
 
 Nginx memory usage:
 
-![nginx memory](./nginx-memory-usage.png)
+![nginx memory](./nginx-cl6-memory-usage.png)
 
-Looking at these results, if you have unlimited bandwidth on both sides, don't
-use compression. Brotli seems to outperform gzip quite a bit in these tests.
-The memory usage of Nginx when using brotli goes higher, so on a larger scale
-this will definitly have some impact there. The data transferred over the wire
-is massively less when brotli is used, even compared to gzip.
+## Compare cpu and memory usage of Nginx (comp_level=3)
+
+Wrk result uncompressed:
+
+```
+Running 1m test @ https://brotli.test/index.html
+  1 threads and 5 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     8.10ms    1.61ms  23.49ms   79.96%
+    Req/Sec   615.71     81.90   787.00     71.71%
+  36833 requests in 1.00m, 61.81GB read
+Requests/sec:    612.86
+Transfer/sec:      1.03GB
+```
+
+Wrk result gzipped:
+
+```
+Running 1m test @ https://brotli.test/index.html
+  1 threads and 5 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    15.84ms    6.98ms  77.51ms   91.05%
+    Req/Sec   327.32     78.45   444.00     85.00%
+  19568 requests in 1.00m, 2.04GB read
+Requests/sec:    325.88
+Transfer/sec:     34.71MB
+```
+
+Wrk result brotli:
+
+```
+Running 1m test @ https://brotli.test/index.html
+  1 threads and 5 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     8.07ms    3.03ms  37.26ms   88.97%
+    Req/Sec   633.27    119.74     0.88k    84.17%
+  37848 requests in 1.00m, 167.48MB read
+Requests/sec:    630.41
+Transfer/sec:      2.79MB
+```
+
+Nginx cpu usage:
+
+![nginx cpu](./nginx-cl3-cpu-usage.png)
+
+Nginx memory usage:
+
+![nginx memory](./nginx-cl3-memory-usage.png)
 
 ## Real life application: Magento
 
@@ -354,13 +399,23 @@ Magento homepage (brotli compression):
 
 ![Magento homepage gzip compression](./Screenshot_20210325_154806.png)
 
-Looking at the results above, the difference between gzip and brotli are not
-that huge anymore. When the page contains different types of content there is
-only a small 10% difference between the transferred data with gzip vs brotli.
-In this scenario, the brotli compressed page, js, css seems to be a bit faster
-to render in our browser.
-
 ## Conclusion
+
+Looking at the plain html file results, if you have unlimited bandwidth on both
+sides, don't use compression. Once compression is used the cpu usage rises a
+lot higher compared to no compression. Brotli seems to outperform gzip quite a
+bit in these tests.  The memory usage of Nginx when using brotli goes higher,
+so on a larger scale this will definitly have some impact there. The data
+transferred over the wire is massively less when brotli is used, even compared
+to gzip. When de compression level is reduced the throughput using brotli is
+higher than uncompressed, still at a higher cpu cost but the memory usage
+difference is a lot lower.
+
+Looking at the results of the Magento test, the difference between gzip and
+brotli are not that huge anymore. When the page contains different types of
+content there is only a small 10% difference between the transferred data with
+gzip vs brotli.  In this scenario, the brotli compressed page, js, css seems to
+be a bit faster to render in our browser.
 
 Brotli compression is definitly worth to be enabled. Even if there is only a
 gain of 10% less network traffic in the case of a real life Magento page. Once
