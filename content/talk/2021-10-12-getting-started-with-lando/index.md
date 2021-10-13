@@ -19,3 +19,6 @@ The goal of this presentation is to get to know what we can do with
 [Lando](https://lando.dev). And learn what its capabilities are. Going from a
 simple hello-world from the documentation to a development environment for a
 Magento project.
+
+The examples of the presentation can be found on
+[Github](https://github.com/BlackIkeEagle/lando-playground).
