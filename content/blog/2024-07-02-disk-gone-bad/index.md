@@ -180,6 +180,10 @@ After remounting, the xfs filesystem does no longer report issues with the metad
 
 Because of the nature of the data and the presence of parfiles it was easy to find corrupted data. Due to sheer luck, no data was lost and the archives got repaired. The most annoying part of this is the time it takes to find the corrupted data.
 
+{{< notice warning >}}
+Without the presence of parfiles it would have been way harder to find corrupted data
+{{< /notice >}}
+
 ## Takeaways
 
 Multi disk lvm is easy to setup. But if there is a quick failure of a disk, you're in for a lot of work.
