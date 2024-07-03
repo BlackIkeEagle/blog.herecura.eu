@@ -1,4 +1,4 @@
-<div class="sidebar">
+<aside class="sidebar">
   <div class="container sidebar-sticky">
     <div class="sidebar-about">
       <img style="width: 50%; border-radius: 40%;" src="/images/blackikeeagle.jpg" alt="me" />
@@ -8,12 +8,14 @@
       </p>
     </div>
 
-    <ul class="sidebar-nav">
-      <li><a href="{{ .Site.BaseURL }}">Home</a> </li>
-      {{ range .Site.Menus.main }}
-        <li><a href="{{.URL}}"> {{ .Name }} </a></li>
-      {{end}}
-    </ul>
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="{{ .Site.BaseURL }}">Home</a> </li>
+        {{ range .Site.Menus.main -}}
+          <li><a href="{{.URL}}"> {{ .Name }} </a></li>
+        {{- end}}
+      </ul>
+    </nav>
 
     <h2>Blogroll</h2>
     <ul class="sidebar-nav">
@@ -24,4 +26,4 @@
 
     <p>&copy; {{ with .Site.Params.copyright }}{{.}} - {{ now.Format "2006"}}{{ else }}{{ now.Format "2006"}}{{end}}</p>
   </div>
-</div>
+</aside>

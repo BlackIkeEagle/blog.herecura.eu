@@ -1,40 +1,34 @@
-{{ partial "head.html" . }}
-<body class="{{ .Site.Params.themeColor }} {{if .Site.Params.layoutReverse}}layout-reverse{{end}}">
-  {{ partial "sidebar.html" . }}
-
-  <div class="content container">
-    <div class="post">
-      <h1>{{ .Title }}</h1>
-      <span class="post-date">{{ .Date.Format "Mon, Jan 2, 2006" }}</span>
-      {{ with .Params.meetuplogo }}
-      <img alt="meetup logo" src="{{ . }}" />
-      {{ end }}
-      {{ .Content }}
-      {{ with .Params.meetupphoto }}
-      <img alt="presentation photo" src="{{ . }}" />
-      {{ end }}
-    </div>
-    {{ with .Params.slides }}
-    <div id="slideswrapper">
-      <h2>Slides</h2>
-      <div style='position: relative; width: 100%; height: 0px; padding-bottom: 60%;'>
-          <iframe id="slides" data-src="{{ . }}" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%'></iframe>
-      </div>
-    </div>
-    <a href="{{ . }}">slides</a>
-    {{ end }}
+{{ define "main" -}}
+<div class="post">
+  <h1>{{ .Title }}</h1>
+  <time datetime={{ .Date.Format "2006-01-02T15:04:05Z0700" }} class="post-date">{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+  {{ with .Params.meetuplogo -}}
+  <img alt="meetup logo" src="{{ . }}" />
+  {{- end }}
+  {{ .Content }}
+  {{ with .Params.meetupphoto -}}
+  <img alt="presentation photo" src="{{ . }}" />
+  {{- end }}
+</div>
+{{ with .Params.slides -}}
+<div id="slideswrapper">
+  <h2>Slides</h2>
+  <div style='position: relative; width: 100%; height: 0px; padding-bottom: 60%;'>
+      <iframe id="slides" data-src="{{ . }}" style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%'></iframe>
   </div>
+</div>
+<a href="{{ . }}">slides</a>
+{{- end }}
 
-  <script type="text/javascript">
-    var iframe=document.getElementById('slides');
-    var iframewrapper=document.getElementById('slideswrapper');
-    var src = iframe.getAttribute('data-src');
+<script type="text/javascript">
+var iframe=document.getElementById('slides');
+var iframewrapper=document.getElementById('slideswrapper');
+var src = iframe.getAttribute('data-src');
 
-    if (window.matchMedia("(min-width: 768px)").matches) {
-      iframe.setAttribute('src', src);
-    } else {
-      iframewrapper.setAttribute('style', 'display: none');
-    }
-  </script>
-</body>
-</html>
+if (window.matchMedia("(min-width: 768px)").matches) {
+  iframe.setAttribute('src', src);
+} else {
+  iframewrapper.setAttribute('style', 'display: none');
+}
+</script>
+{{- end }}
