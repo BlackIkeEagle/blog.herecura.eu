@@ -38,10 +38,7 @@ So I want this turned of in all my browsers. Currently we have to use the flag
 [#hardware-media-key-handling](chrome://flags/#hardware-media-key-handling
 "Hardware Media Key Handling"). There you can disable the feature.
 
-<video controls="controls" style="width: 100%">
-    <source type="video/mp4" src="disable-media-keys.mp4"></source>
-    <p>Your browser does not support the video element.</p>
-</video>
+{{< video src="disable-media-keys" >}}
 
 Now the media controls are off and you can be sure your default media player
 will react to your media keys.
