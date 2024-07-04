@@ -1,7 +1,7 @@
 baseURL = "https://blog.herecura.eu/"
 languageCode = "en-us"
 title = "BlackIkeEagle's blog"
-theme = ["hugo-notice", "hyde"]
+theme = ["hugo-notice", "hugo-video", "hyde"]
 [params]
   description = "Thoughts to remember, and other random stuff."
   copyright = "2014"
