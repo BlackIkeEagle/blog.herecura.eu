@@ -10,7 +10,7 @@ tags:
   - tablet
 ---
 
-Recently I received my Starlite MK V Linux tablet / laptop.
+Recently I received my Starlite MK V Linux tablet / laptop. While it took a bit more than 6 weeks to get it delivered, I'm still happy I made the order.
 
 <!--more-->
 
@@ -35,6 +35,22 @@ I ordered it with Ubuntu preinstalled since I thought that would be a safe bet. 
 Since this is an actual PC, installation of Arch Linux works fine. Via the boot menu I got to boot the Arch Linux ISO from a USB-stick. Using a script I installed Plasma Desktop as I would on any other computer. Since this will be about additional steps I had to take to make the tablet behave like a tablet I will not go into depth how to install Arch Linux, there are plenty of good resources for that. For the installation the keyboard came in handy, since I would probably not have been able to boot from USB and do a text based install without it.
 
 ![Plasma desktop system info](Screenshot_20240630_135725.png)
+
+### tpmrm0 boot delay
+
+When booting the first time I had to wait for a very long time for `/dev/tpmrm0.device`
+
+```
+jun 29 16:02:59 archlinux-MjkxYmFi systemd[1]: dev-tpmrm0.device: Job dev-tpmrm0.device/start timed out.  
+jun 29 16:02:59 archlinux-MjkxYmFi systemd[1]: Timed out waiting for device /dev/tpmrm0.  
+jun 29 16:02:59 archlinux-MjkxYmFi systemd[1]: dev-tpmrm0.device: Job dev-tpmrm0.device/start failed with result 'timeout'.
+```
+
+To overcome this I disabled the `tpm2.target`
+
+```sh
+systemctl mask tpm2.target
+```
 
 ### On-screen keyboard
 
@@ -61,6 +77,136 @@ At this point the tablet only works in landscape mode, there is no automatic rot
 Below is a quick video recording of the desktop in action with on-screen keyboard and auto rotation of the display.
 
 {{< video src="starlite-2024-07-04_18-21-05" >}}
+
+### disable touchpad while typing
+
+This does not seem to work when just ticked in system settings. When it gets listed via `libinput list-devices` it shows that disable while typing is enabled. So it does not seem to do anything.
+
+```sh
+libinput list-devices
+...
+Device:           HID 1018:1006 Touchpad  
+Kernel:           /dev/input/event5  
+Group:            4  
+Seat:             seat0, default  
+Size:             122x83mm  
+Capabilities:     pointer gesture  
+Tap-to-click:     disabled  
+Tap-and-drag:     enabled  
+Tap drag lock:    disabled  
+Left-handed:      disabled  
+Nat.scrolling:    disabled  
+Middle emulation: disabled  
+Calibration:      n/a  
+Scroll methods:   *two-finger edge    
+Click methods:    *button-areas clickfinger    
+Disable-w-typing: enabled  
+Disable-w-trackpointing: enabled  
+Accel profiles:   flat *adaptive custom  
+Rotation:         n/a
+...
+```
+
+Trying some `libinput` quircks to see if that makes it a bit better.
+
+`/etc/libinput/starlite-touchpad.quircks`
+
+```
+[Serial Keyboards]
+MatchVendor=0x27C6
+MatchProduct=0x0111
+MatchUdevType=keyboard
+AttrKeyboardIntegration=internal
+```
+
+### fwupdmgr is not showing "bios" updates
+
+There was already an update for the system firmware, but fwupdmgr did not want to show it. According to [issue 24 on the StarLabs firmware github](https://github.com/StarLabsLtd/firmware/issues/24#issuecomment-1007307280), `iomem=relaxed` must be passed to the kernel commandline.
+
+`/etc/default/grub`:
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT="... iomem=relaxed"
+```
+
+Regenerate the grub config:
+
+```sh
+sudo grub-mkconfig -o /boot/efi/EFI/BOOT/grub/grub.cfg
+```
+
+Also note when `lockdown` is used it will not be possible to update coreboot since `flashrom` needs direct memory IO.
+
+To manually update, get the last rom from the StarLabs [firmware repo](https://github.com/StarLabsLtd/firmware/tree/master/StarLite/MkV). I have updated to `24.06` manually with `flashrom`.
+
+```sh
+curl -OlL https://github.com/StarLabsLtd/firmware/raw/master/StarLite/MkV/coreboot/24.06/24.06.rom
+sudo flashrom -p internal -w 24.06.rom -i bios --ifd -n -N
+sudo systemctl poweroff
+```
+
+As stated on the firmware repo:
+
+> 	Once that has finished, please shutdown (not a reboot), disconnect the charger and wait for 12 seconds until you see the LEDs flicker. Once that happens, you can reconnect the charger and carry on.
+
+
+To get the `bios` to show up when running `fwupdmgr get-devices`, there is currently a quirck needed as found in [issue 179 of the firmware repo](https://github.com/StarLabsLtd/firmware/issues/179#issuecomment-2200038005):
+
+`/var/lib/fwupd/quirks.d/starlite.quirk`
+
+```
+[3d9415bb-3027-541b-99b7-cf21e5383bdb]  
+Plugin = flashrom
+```
+
+Then it shows up in the devices:
+
+```
+fwupdmgr get-devices
+
+Star Labs StarLite  
+│  
+├─N200:  
+│     Device ID:          4bde70ba4e39b28f9eab1628f9dd6e6244c03027  
+│     Current version:    0x00000017  
+│     Vendor:             Intel  
+│     GUIDs:              90cc499c-3166-5538-b337-ac47d715d50b ← CPUID\PRO_0&FAM_06&MOD_BE  
+│                         dcb3a326-6c55-59ef-a947-d5ae46f7b4ec ← CPUID\PRO_0&FAM_06&MOD_BE&STP_0  
+│     Device Flags:       • Internal device  
+│      
+├─NVME 1TB SSD:  
+│     Device ID:          71b677ca0f1bc2c5b804fa1d59e52064ce589293  
+│     Summary:            NVM Express solid state drive  
+│     Current version:    T1103N0L  
+│     Vendor:             Silicon Motion, Inc. (NVME:0x126F)  
+│     Serial Number:      2024011200227  
+│     GUIDs:              eb4c6074-9dc2-57ae-bd43-1119ad6080f5 ← NVME\VEN_126F&DEV_2263  
+│                         165a89d1-acc2-51c7-92b9-300207a5409c ← NVME\VEN_126F&DEV_2263&SUBSYS_126F2263  
+│                         abd4111a-12e7-5c7c-9e79-35da2766ab3a ← NVME 1TB SSD  
+│     Device Flags:       • Internal device  
+│                         • Updatable  
+│                         • System requires external power source  
+│                         • Needs a reboot after installation  
+│                         • Device is usable for the duration of the update  
+│      
+└─StarLite (bios):  
+     Device ID:          dbee8bd3b1ae0316ad143336155651eedb495a0e  
+     Current version:    24.06  
+     Vendor:             Star Labs (DMI:coreboot)  
+     GUIDs:              b2e0b708-4ced-5edb-83fe-eac07c774b3a ← FLASHROM\VENDOR_Star Labs&PRODUCT_StarLite&REGION_BIOS  
+                         31626536-411f-5e0a-9c93-95b6839d6366 ← FLASHROM\GUID_3d9415bb-3027-541b-99b7-cf21e5383bdb  
+                         f03fd104-123b-59da-a3a0-72fdd4eedbae ← Star Labs&I5&StarLite&I5&Star Labs&StarLite  
+                         a9d3771c-03ed-506d-83f6-310ce9cbd252 ← Star Labs&I5&StarLite&I5  
+                         9878fde8-dbff-5024-ae11-7580fafd445f ← Star Labs&I5&StarLite  
+                         80d2617e-b380-559d-8caf-fb36afea3478 ← Star Labs&I5&Star Labs&StarLite  
+                         c9d8edd8-8c89-598f-9d7a-e3ad247ee9cd ← Star Labs&I5&StarLite&I5&coreboot  
+     Device Flags:       • Internal device  
+                         • Updatable  
+                         • System requires external power source  
+                         • Supported on remote server  
+                         • Needs shutdown after installation  
+                         • Cryptographic hash verification is available
+```
 
 ## Chromium based browsers
 
@@ -117,6 +263,7 @@ As and extra because it is a tablet after all and I ordered the stylus, letting 
 ### Pros
 
 - It is a PC, so you can install all your favorite applications and have no learning curve
+- The N200 cpu is fairly capable for many tasks
 - The 12 inch form-factor makes it very portable
 - I love the possibility to use it as tablet, or with the keyboard/touch-pad
 - The battery life is pretty good compared to a laptop
@@ -124,17 +271,21 @@ As and extra because it is a tablet after all and I ordered the stylus, letting 
 ### Cons
 
 - The touch-pad does not properly disable while typing which leads to many accidental clicks while typing
+- Selecting large portions of text is tricky, sometimes the touch-pad does lose it's click while selecting
 - The keyboard with stand has more depth than a laptop, so no comfortable use of a laptop pillow in the sofa
+- The keyboard is missing some keys like `home`, `end`, `ins`, ... which make some tasks annoying
 - Maliit-keyboard only had qwerty layout, it conflicts a bit with my default azerty layout
+- Bluetooth does not work at all, its not even detected to be present
 
 ### Annoyances
 
 - Maliit-keyboard sometimes refuses to show, or the other way around to go away
 - Applications in XWayland don't always work so great with the on-screen keyboard
+- While using it as a tablet it is fairly heavy for long reading sessions
 
 ## Conclusion
 
-I like the Starlite MK V, it suits my needs pretty good and will over time replace a lightweight laptop and an aging Android tablet. For tasks on the go it will come in handy. The keyboard with stand makes it handy to do some productivity tasks. The tablet mode makes it great for consuming media, books, papers, ...
+I like the Starlite MK V, it suits my needs pretty good and might over time replace a lightweight laptop and an aging Android tablet. For tasks on the go it will come in handy. The keyboard with stand makes it handy to do some productivity tasks. The tablet mode makes it great for consuming media, books, papers, ...
 
 Overall I'm also impressed by how well everything already works with a touch-only interface (once installed). But compared to for example Android there are still some rough edges. Nothing outside of my expectation, I was expecting the need for some tweaking so it is fine for my use. But it is probably not yet for the general audience.
 
