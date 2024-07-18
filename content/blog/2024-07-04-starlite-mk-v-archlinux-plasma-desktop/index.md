@@ -12,6 +12,10 @@ tags:
 
 Recently I received my Starlite MK V Linux tablet / laptop. While it took a bit more than 6 weeks to get it delivered, I'm still happy I made the order.
 
+{{< notice note >}}
+[Updates published on 18/07/2024](https://github.com/BlackIkeEagle/blog.herecura.eu/commit/09be0a9edbe8c71734a6ae11a330dea3cdea47c6)
+{{< /notice >}}
+
 <!--more-->
 
 ![Starlite boxes and extras](IMG_20240627_122724_672.jpg)
